@@ -1,0 +1,113 @@
+{
+    "site": {
+        "title": "Tanvir Ahammad Emon",
+        "tagline": "Capturing moments that matter",
+        "author": "Tanvir Ahammad Emon",
+        "bio": "Tanvir Ahammad Emon is a dedicated photographer based in Bangladesh and the current President of DIUPS (Daffodil International University Photographic Society).\nSince starting his journey in 2018-2019, Tanvir has focused on freezing authentic moments in time. His portfolio is a blend of Travel, Street, and Documentary photography, with a keen interest in Wildlife and natural beauty. Whether capturing a fleeting moment on the street or the details of wildlife, his work reflects a deep commitment to the art form.",
+        "author_photo": "/images/TanvirEmon.jpg",
+        "contact_email": "tanviremon121@gmail.com",
+        "social": {
+            "instagram": "https://instagram.com/tanvir._.emon",
+            "facebook": "https://facebook.com/tanviraemonofficial"
+        }
+    },
+    "categories": [
+        "All",
+        "Landscape",
+        "Portrait",
+        "Street",
+        "Architecture",
+        "Documentary"
+    ],
+    "photos": [
+        {
+            "id": 1,
+            "title": "Into the Mist",
+            "category": "Street",
+            "url": "/images/pic1.jpg",
+            "thumbnail": "/images/pic1.jpg",
+            "description": "A silhouetted figure carrying a bucket walks down a misty, sunlit path framed by dark, towering trees."
+        },
+        {
+            "id": 2,
+            "title": "Colors of Labor",
+            "category": [
+                "Documentary",
+                "Street"
+            ],
+            "url": "/images/Labour-2.jpg",
+            "thumbnail": "/images/Labour-2.jpg",
+            "description": "A laborer balances a heavy basket of bricks on his head as he walks past the massive, brightly painted hull of a ship."
+        },
+        {
+            "id": 3,
+            "title": "A Stroke of Red",
+            "category": "Street",
+            "url": "/images/Red3.jpg",
+            "thumbnail": "/images/Red3.jpg",
+            "description": "A woman in a striking red Hijab walks along a rural railway track, contrasting beautifully with the lush green landscape."
+        },
+        {
+            "id": 4,
+            "title": "Pastoral Peace",
+            "category": "Landscape",
+            "url": "/images/Landscape-4.jpg",
+            "thumbnail": "/images/Landscape-4.jpg",
+            "description": "Cows graze peacefully in a vibrant green pasture bordered by dense trees and rolling mountains."
+        },
+        {
+            "id": 5,
+            "title": "Golden Reflection",
+            "category": "Landscape",
+            "url": "/images/Alone-5.jpg",
+            "thumbnail": "/images/Alone-5.jpg",
+            "description": "A lone horse wades through calm, shallow floodwaters, its reflection mirrored perfectly on the surface under a golden sunset."
+        },
+        {
+            "id": 6,
+            "title": "Peaceful Coexistence",
+            "category": "Street",
+            "url": "/images/Juxtaposition-6.jpg",
+            "thumbnail": "/images/Juxtaposition-6.jpg",
+            "description": "An elderly man in traditional Islamic attire walks past a bright blue roadside cabinet housing Hindu deities."
+        },
+        {
+            "id": 7,
+            "title": "The Morning Load",
+            "category": "Landscape",
+            "url": "/images/winter7.jpg",
+            "thumbnail": "/images/winter7.jpg",
+            "description": "Two figures carry a heavy load on a bamboo pole through a foggy field beneath a solitary tree at sunrise."
+        },
+        {
+            "id": 8,
+            "title": "Life on the Tracks",
+            "category": [
+                "Portrait",
+                "Street"
+            ],
+            "url": "/images/lady8.jpg",
+            "thumbnail": "/images/lady8.jpg",
+            "description": "Local vendors calmly sell fish on the edge of the railway tracks as a heavy train speeds past just inches away."
+        },
+        {
+            "id": 9,
+            "title": "A Face in the Crowd",
+            "category": [
+                "Documentary",
+                "Portrait"
+            ],
+            "url": "/images/osmanhadi9.jpg",
+            "thumbnail": "/images/osmanhadi9.jpg",
+            "description": "A young girl looks back piercingly through a dense, somber crowd gathered at the Osman Hadi janaja, flanked by security personnel."
+        },
+        {
+            "id": 10,
+            "title": "Surge of Power",
+            "category": "Documentary",
+            "url": "/images/boatrace10.jpg",
+            "thumbnail": "/images/boatrace10.jpg",
+            "description": "TIntense action and flying water as a large crew of rowers paddles furiously during a traditional boat race."
+        }
+    ]
+}

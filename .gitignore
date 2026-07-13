@@ -1,0 +1,10 @@
+# Build output
+*.exe
+server.exe
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Any temporary log files
+*.log

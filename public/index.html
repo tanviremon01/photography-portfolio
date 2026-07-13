@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Lens & Light — A curated photography portfolio showcasing landscape, portrait, street, and architecture photography. Capturing moments that matter.">
+    <meta name="author" content="Alexandra Rivers">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Lens & Light Photography">
+    <meta property="og:description"
+        content="Capturing moments that matter — Landscape, Portrait, Street & Architecture photography.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:8080">
+
+    <title>Lens & Light — Photography Portfolio</title>
+
+    <!-- Google Fonts: Inter + Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <!-- ============================== HEADER ============================== -->
+    <header class="site-header" id="site-header">
+        <div class="header-inner">
+            <a href="#" class="logo" id="logo">
+                <span class="logo-icon">◈</span>
+                <span class="logo-text">TAE</span>
+            </a>
+            <nav class="main-nav" id="main-nav">
+                <ul>
+                    <li><a href="#gallery" class="nav-link">Gallery</a></li>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle navigation menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============================== HERO ============================== -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <p class="hero-label" id="hero-label">Photography Portfolio</p>
+            <h1 class="hero-title" id="hero-title">Exploring Life<br>Through The Lens</h1>
+            <a href="#gallery" class="hero-cta">Explore Gallery</a>
+        </div>
+        <div class="hero-scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- ============================== GALLERY ============================== -->
+    <section class="gallery-section" id="gallery">
+        <div class="section-header">
+            <p class="section-label">Portfolio</p>
+            <h2 class="section-title">Selected Works</h2>
+        </div>
+
+        <!-- Category Filter Bar — populated by JS -->
+        <div class="filter-bar" id="filter-bar"></div>
+
+        <!-- Photo Grid — populated by JS -->
+        <div class="gallery-grid" id="gallery-grid">
+            <!-- Photo cards injected dynamically by app.js -->
+            <div class="gallery-loading" id="gallery-loading">
+                <div class="loader-ring"></div>
+                <p>Loading portfolio...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================== ABOUT ============================== -->
+    <section class="about-section" id="about">
+        <div class="about-inner">
+            <div class="about-image-col">
+                <div class="about-image-frame">
+                    <div class="about-image-placeholder" id="about-image">
+                        <img src="/images/TanvirEmon.jpg" alt="Tanvir Ahammad Emon" class="author-photo"
+                            id="author-photo">
+                    </div>
+                </div>
+            </div>
+            <div class="about-text-col">
+                <p class="section-label">About</p>
+                <h2 class="section-title" id="about-name">The Photographer</h2>
+                <p class="about-bio" id="about-bio">Loading...</p>
+                <div class="about-stats">
+                    <div class="stat">
+                        <span class="stat-number">8+</span>
+                        <span class="stat-label">Years Experience</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="stat-photos">0</span>
+                        <span class="stat-label">Photos</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">5</span>
+                        <span class="stat-label">Categories</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================== CONTACT ============================== -->
+    <section class="contact-section" id="contact">
+        <div class="contact-inner">
+            <p class="section-label">Get in Touch</p>
+            <h2 class="section-title">Let's Create Together</h2>
+            <p class="contact-description">Interested in a shoot or collaboration? I'd love to hear from you.</p>
+            <a href="mailto:hello@lensandlight.com" class="contact-email-link" id="contact-email-link">
+                hello@lensandlight.com
+            </a>
+            <div class="social-links" id="social-links">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================== FOOTER ============================== -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p class="footer-copy">&copy; <span id="footer-year">2026</span> <span id="footer-author">Lens &
+                    Light</span>. All rights reserved.</p>
+
+        </div>
+    </footer>
+
+    <!-- ============================== LIGHTBOX ============================== -->
+    <div class="lightbox-overlay" id="lightbox-overlay" role="dialog" aria-modal="true" aria-label="Image viewer">
+        <button class="lightbox-close" id="lightbox-close" aria-label="Close image viewer">&times;</button>
+        <button class="lightbox-prev" id="lightbox-prev" aria-label="Previous image">&#10094;</button>
+        <button class="lightbox-next" id="lightbox-next" aria-label="Next image">&#10095;</button>
+        <div class="lightbox-content">
+            <img src="" alt="" class="lightbox-image" id="lightbox-image">
+            <div class="lightbox-caption">
+                <h3 class="lightbox-title" id="lightbox-title"></h3>
+                <p class="lightbox-desc" id="lightbox-desc"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+
+</html>
