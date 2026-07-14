@@ -43,6 +43,15 @@
         lbNext:       $('#lightbox-next'),
         mobileToggle: $('#mobile-menu-toggle'),
         mainNav:      $('#main-nav'),
+        /* New section DOM refs */
+        highlightsGrid:          $('#highlights-grid'),
+        awardsGrid:              $('#awards-grid'),
+        servicesGrid:            $('#services-grid'),
+        portfoliosTabs:          $('#portfolios-tabs'),
+        portfoliosContent:       $('#portfolios-content'),
+        clientsMarquee:          $('#clients-marquee'),
+        testimonialsCarousel:    $('#testimonials-carousel'),
+        testimonialsDots:        $('#testimonials-dots'),
     };
 
     /* -------------------------------------------------------------------
@@ -52,6 +61,8 @@
     let activeCategory = 'All';
     let lightboxIndex = -1;
     let filteredPhotos = [];
+    let testimonialTimer = null;
+    let activeTestimonial = 0;
 
     /* -------------------------------------------------------------------
      * INIT — Entry point on DOMContentLoaded.
@@ -75,8 +86,14 @@
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             portfolioData = await response.json();
             renderSiteData();
+            renderHighlights();
             renderFilters();
             renderGallery();
+            renderAwards();
+            renderServices();
+            renderPortfolios();
+            renderClients();
+            renderTestimonials();
             setupScrollAnimations();
         } catch (err) {
             console.error('[Portfolio] Failed to fetch data:', err);
@@ -150,6 +167,280 @@
     }
 
     /* -------------------------------------------------------------------
+     * HIGHLIGHTS — Render unified curated showcase.
+     * ------------------------------------------------------------------- */
+    function renderHighlights() {
+        if (!portfolioData.highlights || !Array.isArray(portfolioData.highlights) || !DOM.highlightsGrid) return;
+
+        const photos = portfolioData.photos;
+
+        function findPhoto(id) {
+            return photos.find((p) => p.id === id);
+        }
+
+        DOM.highlightsGrid.innerHTML = '';
+
+        portfolioData.highlights.forEach((hl, i) => {
+            const photo = findPhoto(hl.photo_id);
+            if (!photo) return;
+
+            const card = document.createElement('div');
+            card.className = 'highlight-card';
+
+            const categoryText = Array.isArray(photo.category)
+                ? photo.category.join(' / ')
+                : photo.category;
+
+            card.innerHTML = `
+                <img src="${escapeHtml(photo.url)}"
+                     alt="${escapeHtml(photo.title)}"
+                     loading="lazy" draggable="false">
+                <div class="highlight-overlay">
+                    <span class="highlight-category">${escapeHtml(categoryText)}</span>
+                    <h4 class="highlight-title">${escapeHtml(photo.title)}</h4>
+                    <p class="highlight-pullquote">"${escapeHtml(hl.pullquote)}"</p>
+                </div>
+            `;
+
+            /* Click opens lightbox */
+            card.addEventListener('click', () => {
+                activeCategory = 'All';
+                updateFilterButtons();
+                renderGallery();
+                const idx = filteredPhotos.findIndex((p) => p.id === photo.id);
+                if (idx >= 0) openLightbox(idx);
+            });
+
+            DOM.highlightsGrid.appendChild(card);
+        });
+
+        /* Staggered entrance */
+        requestAnimationFrame(() => {
+            const cards = DOM.highlightsGrid.querySelectorAll('.highlight-card');
+            cards.forEach((card, i) => {
+                setTimeout(() => card.classList.add('visible'), i * 100);
+            });
+        });
+    }
+
+    /* -------------------------------------------------------------------
+     * AWARDS — Render awards & certificates with glass cards.
+     * ------------------------------------------------------------------- */
+    function renderAwards() {
+        if (!portfolioData.awards || !DOM.awardsGrid) return;
+
+        DOM.awardsGrid.innerHTML = '';
+
+        const trophyIcons = ['🏆', '🥇', '🎖️', '📜'];
+
+        portfolioData.awards.forEach((award, i) => {
+            const card = document.createElement('div');
+            card.className = 'award-card';
+
+            card.innerHTML = `
+                <span class="award-icon">${trophyIcons[i % trophyIcons.length]}</span>
+                <span class="award-year">${escapeHtml(String(award.year))}</span>
+                <h3 class="award-title">${escapeHtml(award.title)}</h3>
+                <p class="award-org">${escapeHtml(award.organization)}</p>
+                <p class="award-desc">${escapeHtml(award.description)}</p>
+            `;
+
+            DOM.awardsGrid.appendChild(card);
+        });
+
+        /* Staggered entrance animation */
+        requestAnimationFrame(() => {
+            const cards = DOM.awardsGrid.querySelectorAll('.award-card');
+            cards.forEach((card, i) => {
+                setTimeout(() => card.classList.add('visible'), i * 120);
+            });
+        });
+    }
+
+    /* -------------------------------------------------------------------
+     * SERVICES — Render service offering cards.
+     * ------------------------------------------------------------------- */
+    function renderServices() {
+        if (!portfolioData.services || !DOM.servicesGrid) return;
+
+        DOM.servicesGrid.innerHTML = '';
+
+        portfolioData.services.forEach((service, i) => {
+            const card = document.createElement('div');
+            card.className = 'service-card';
+
+            const featuresHtml = service.features
+                .map((f) => `<li>${escapeHtml(f)}</li>`)
+                .join('');
+
+            card.innerHTML = `
+                <span class="service-icon">${service.icon}</span>
+                <h3 class="service-title">${escapeHtml(service.title)}</h3>
+                <p class="service-desc">${escapeHtml(service.description)}</p>
+                <ul class="service-features">
+                    ${featuresHtml}
+                </ul>
+            `;
+
+            DOM.servicesGrid.appendChild(card);
+        });
+
+        /* Staggered entrance animation */
+        requestAnimationFrame(() => {
+            const cards = DOM.servicesGrid.querySelectorAll('.service-card');
+            cards.forEach((card, i) => {
+                setTimeout(() => card.classList.add('visible'), i * 100);
+            });
+        });
+    }
+
+    /* -------------------------------------------------------------------
+     * PORTFOLIOS — Brand / Event / Corporate folder cards with tabs.
+     * ------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------
+     * PORTFOLIOS — Brand / Event / Corporate folders.
+     * ------------------------------------------------------------------- */
+    function renderPortfolios() {
+        if (!portfolioData.portfolios || !DOM.portfoliosContent) return;
+
+        DOM.portfoliosContent.innerHTML = '';
+
+        portfolioData.portfolios.forEach((folder) => {
+            const card = document.createElement('div');
+            card.className = 'project-folder clickable-folder';
+            card.style.cursor = 'pointer';
+
+            card.innerHTML = `
+                <div class="project-folder-header">
+                    <svg class="folder-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/>
+                    </svg>
+                    <h3 class="project-folder-name">${escapeHtml(folder.type)}</h3>
+                </div>
+                <div class="project-folder-body">
+                    <p class="project-folder-desc">${escapeHtml(folder.description)}</p>
+                    <span class="project-folder-type-badge">${folder.icon} ${escapeHtml((folder.photos ? folder.photos.length : 0) + ' Photos')}</span>
+                </div>
+            `;
+
+            /* Click opens lightbox with only these photos */
+            card.addEventListener('click', () => {
+                if (!folder.photos || folder.photos.length === 0) return;
+                
+                filteredPhotos = folder.photos;
+                openLightbox(0);
+            });
+
+            DOM.portfoliosContent.appendChild(card);
+        });
+
+        /* Staggered entrance */
+        requestAnimationFrame(() => {
+            const cards = DOM.portfoliosContent.querySelectorAll('.project-folder');
+            cards.forEach((card, i) => {
+                setTimeout(() => card.classList.add('visible'), i * 80);
+            });
+        });
+    }
+
+    /* -------------------------------------------------------------------
+     * CLIENTS — Render infinite marquee of client names.
+     * ------------------------------------------------------------------- */
+    function renderClients() {
+        if (!portfolioData.clients || !DOM.clientsMarquee) return;
+
+        DOM.clientsMarquee.innerHTML = '';
+
+        /* Build one set of client items */
+        function buildClientItems() {
+            const fragment = document.createDocumentFragment();
+            portfolioData.clients.forEach((client, i) => {
+                const item = document.createElement('div');
+                item.className = 'client-item';
+
+                item.innerHTML = `
+                    <span class="client-name">${escapeHtml(client.name)}</span>
+                    <span class="client-dot"></span>
+                `;
+
+                fragment.appendChild(item);
+            });
+            return fragment;
+        }
+
+        /* Duplicate for seamless infinite loop */
+        DOM.clientsMarquee.appendChild(buildClientItems());
+        DOM.clientsMarquee.appendChild(buildClientItems());
+    }
+
+    /* -------------------------------------------------------------------
+     * TESTIMONIALS — Render carousel with auto-rotation.
+     * ------------------------------------------------------------------- */
+    function renderTestimonials() {
+        if (!portfolioData.testimonials || !DOM.testimonialsCarousel) return;
+
+        DOM.testimonialsCarousel.innerHTML = '';
+        if (DOM.testimonialsDots) DOM.testimonialsDots.innerHTML = '';
+
+        portfolioData.testimonials.forEach((t, i) => {
+            /* Card */
+            const card = document.createElement('div');
+            card.className = 'testimonial-card' + (i === 0 ? ' active' : '');
+            card.setAttribute('data-index', i);
+
+            const stars = '★'.repeat(t.rating) + '☆'.repeat(5 - t.rating);
+
+            card.innerHTML = `
+                <div class="testimonial-quote-mark">"</div>
+                <p class="testimonial-quote">${escapeHtml(t.quote)}</p>
+                <div class="testimonial-stars">${stars}</div>
+                <p class="testimonial-author">${escapeHtml(t.name)}</p>
+                <p class="testimonial-role">${escapeHtml(t.role)}</p>
+            `;
+
+            DOM.testimonialsCarousel.appendChild(card);
+
+            /* Dot */
+            if (DOM.testimonialsDots) {
+                const dot = document.createElement('button');
+                dot.className = 'testimonial-dot' + (i === 0 ? ' active' : '');
+                dot.setAttribute('aria-label', 'View testimonial from ' + t.name);
+                dot.addEventListener('click', () => goToTestimonial(i));
+                DOM.testimonialsDots.appendChild(dot);
+            }
+        });
+
+        /* Start auto-rotation */
+        activeTestimonial = 0;
+        startTestimonialAutoRotation();
+    }
+
+    function goToTestimonial(index) {
+        const cards = DOM.testimonialsCarousel.querySelectorAll('.testimonial-card');
+        const dots = DOM.testimonialsDots ? DOM.testimonialsDots.querySelectorAll('.testimonial-dot') : [];
+
+        cards.forEach((c) => c.classList.remove('active'));
+        dots.forEach((d) => d.classList.remove('active'));
+
+        activeTestimonial = index;
+        if (cards[index]) cards[index].classList.add('active');
+        if (dots[index]) dots[index].classList.add('active');
+
+        /* Reset timer */
+        startTestimonialAutoRotation();
+    }
+
+    function startTestimonialAutoRotation() {
+        if (testimonialTimer) clearInterval(testimonialTimer);
+        if (!portfolioData.testimonials || portfolioData.testimonials.length <= 1) return;
+
+        testimonialTimer = setInterval(() => {
+            const next = (activeTestimonial + 1) % portfolioData.testimonials.length;
+            goToTestimonial(next);
+        }, 5000);
+    }
+
+    /* -------------------------------------------------------------------
      * FILTERS — Build category buttons.
      * ------------------------------------------------------------------- */
     function renderFilters() {
@@ -172,6 +463,7 @@
     }
 
     function updateFilterButtons() {
+        if (!DOM.filterBar) return;
         DOM.filterBar.querySelectorAll('.filter-btn').forEach((btn) => {
             btn.classList.toggle('active', btn.textContent === activeCategory);
         });
@@ -258,6 +550,16 @@
         DOM.lightbox.classList.remove('active');
         document.body.style.overflow = '';
         lightboxIndex = -1;
+        
+        /* Restore original filteredPhotos array in case it was overridden by folder click */
+        if (portfolioData && portfolioData.photos) {
+            filteredPhotos = activeCategory === 'All'
+                ? portfolioData.photos
+                : portfolioData.photos.filter((p) => {
+                    if (Array.isArray(p.category)) return p.category.includes(activeCategory);
+                    return p.category === activeCategory;
+                });
+        }
     }
 
     function navigateLightbox(direction) {
@@ -369,6 +671,10 @@
             ...$$('.about-inner'),
             ...$$('.contact-inner'),
             ...$$('.filter-bar'),
+            ...$$('.highlights-grid'),
+            ...$$('.portfolios-tabs'),
+            ...$$('.clients-marquee-wrapper'),
+            ...$$('.testimonials-carousel'),
         ];
 
         revealElements.forEach((el) => el.classList.add('reveal'));
@@ -386,6 +692,24 @@
         );
 
         revealElements.forEach((el) => observer.observe(el));
+
+        /* Also observe individual cards for staggered reveal */
+        const cardObserver = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        cardObserver.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.1, rootMargin: '0px 0px -20px 0px' }
+        );
+
+        [...$$('.award-card'), ...$$('.service-card'), ...$$('.highlight-card'), ...$$('.project-folder')].forEach((card) => {
+            card.classList.remove('visible');
+            cardObserver.observe(card);
+        });
     }
 
     /* -------------------------------------------------------------------

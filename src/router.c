@@ -101,7 +101,7 @@ static void serve_static_file(SOCKET client_socket, const char *url_path) {
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: %s\r\n"
         "Content-Length: %ld\r\n"
-        "Cache-Control: public, max-age=3600\r\n"
+        "Cache-Control: no-cache\r\n"
         "Connection: close\r\n"
         "\r\n",
         mime, file_size);
