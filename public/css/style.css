@@ -354,7 +354,7 @@ ul {
     align-items: center;
     gap: 0.5rem;
     opacity: 0;
-    animation: fadeInUp 0.8s ease forwards 1.2s;
+    animation: fadeInUpCentered 0.8s ease forwards 1.2s;
 }
 
 .hero-scroll-indicator span {
@@ -1501,6 +1501,18 @@ ul {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUpCentered {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
     }
 }
 
