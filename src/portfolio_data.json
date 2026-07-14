@@ -144,9 +144,29 @@
             "description": "Commercial and Brand Photography",
             "photos": [
                 {
-                    "title": "Brand Campaign 1",
-                    "url": "/images/pic1.jpg",
-                    "description": "Product and lifestyle photography for brand campaign."
+                    "title": "Brand Campaign",
+                    "url": "/images/srf/srf1.jpg",
+                    "description": "Product shoot for SRF Sports DIU"
+                },
+                {
+                    "title": "Brand Campaign",
+                    "url": "/images/srf/srf2.jpg",
+                    "description": "Product shoot for SRF Sports DIU"
+                },
+                {
+                    "title": "Brand Campaign",
+                    "url": "/images/srf/srf3.jpg",
+                    "description": "Product shoot for SRF Sports DIU"
+                },
+                {
+                    "title": "VIVO Y31d Launch",
+                    "url": "/images/vivo/vivo1.jpg",
+                    "description": ""
+                },
+                {
+                    "title": "VIVO Y31d Launch",
+                    "url": "/images/vivo/vivo2.jpg",
+                    "description": ""
                 }
             ]
         },
@@ -156,9 +176,24 @@
             "description": "Event Coverage",
             "photos": [
                 {
-                    "title": "Annual Exhibition",
-                    "url": "/images/pic2.jpg",
-                    "description": "Full event coverage."
+                    "title": "Boishakh Parbone 1433",
+                    "url": "/images/diu1433/1.jpg",
+                    "description": "Cultural Program by DIU"
+                },
+                {
+                    "title": "Boishakh Parbone 1433",
+                    "url": "/images/diu1433/2.jpg",
+                    "description": "Cultural Program by DIU"
+                },
+                {
+                    "title": "Boishakh Parbone 1433",
+                    "url": "/images/diu1433/3.jpg",
+                    "description": "Cultural Program by DIU"
+                },
+                {
+                    "title": "Boishakh Parbone 1433",
+                    "url": "/images/diu1433/4.jpg",
+                    "description": "Cultural Program by DIU"
                 }
             ]
         },
@@ -289,10 +324,6 @@
             "type": "institution"
         },
         {
-            "name": "Bangladesh Photographic Society",
-            "type": "organization"
-        },
-        {
             "name": "Pacific Press Agency",
             "type": "organization"
         },
@@ -306,6 +337,18 @@
         },
         {
             "name": "Poshak By tannas",
+            "type": "brand"
+        },
+        {
+            "name": "VIVO Bangladesh",
+            "type": "brand"
+        },
+        {
+            "name": "Realme Bangladesh",
+            "type": "brand"
+        },
+        {
+            "name": "SRF Sports DIU",
             "type": "brand"
         }
     ],
