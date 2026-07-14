@@ -1334,15 +1334,22 @@ ul {
 }
 
 .social-link {
-    font-size: var(--fs-small);
-    font-weight: var(--fw-medium);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
     color: var(--color-text-secondary);
-    padding: 0.5rem 1rem;
     border: 1px solid var(--color-border);
-    border-radius: 100px;
+    border-radius: 50%;
     transition: all var(--transition-fast);
+}
+
+.social-link svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
 }
 
 .social-link:hover {
