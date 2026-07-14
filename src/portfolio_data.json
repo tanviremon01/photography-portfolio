@@ -169,8 +169,53 @@
             "photos": [
                 {
                     "title": "Corporate Event",
-                    "url": "/images/pic3.jpg",
-                    "description": "Documentary photography for corporate client."
+                    "url": "/images/actionaid/aa1.JPG",
+                    "description": "9th Urban Dialouge 2026"
+                },
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/actionaid/aa2.JPG",
+                    "description": "9th Urban Dialouge 2026"
+                },
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/actionaid/aa3.JPG",
+                    "description": "9th Urban Dialouge 2026"
+                },
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/actionaid/aa4.JPG",
+                    "description": "9th Urban Dialouge 2026"
+                },
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/actionaid/aa5.JPG",
+                    "description": "9th Urban Dialouge 2026"
+                },
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/actionaid/aa6.JPG",
+                    "description": "9th Urban Dialouge 2026"
+                },
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/actionaid/aa7.JPG",
+                    "description": "9th Urban Dialouge 2026"
+                },
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/actionaid/aa8.JPG",
+                    "description": "9th Urban Dialouge 2026"
+                },
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/actionaid/aa9.JPG",
+                    "description": "9th Urban Dialouge 2026"
+                },
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/actionaid/aa10.JPG",
+                    "description": "9th Urban Dialouge 2026"
                 }
             ]
         }
