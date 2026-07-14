@@ -7,6 +7,7 @@
         "author_photo": "/images/TanvirEmon.jpg",
         "contact_email": "tanviremon121@gmail.com",
         "social": {
+            "linkedin": "https://linkedin.com/in/tanviremon",
             "instagram": "https://instagram.com/tanvir._.emon",
             "facebook": "https://facebook.com/tanviraemonofficial"
         }
@@ -108,6 +109,173 @@
             "url": "/images/boatrace10.jpg",
             "thumbnail": "/images/boatrace10.jpg",
             "description": "TIntense action and flying water as a large crew of rowers paddles furiously during a traditional boat race."
+        }
+    ],
+    "highlights": [
+        {
+            "photo_id": 4,
+            "pullquote": "Where the earth meets the sky, silence speaks volumes."
+        },
+        {
+            "photo_id": 5,
+            "pullquote": "A golden hour that paused the world in its reflection."
+        },
+        {
+            "photo_id": 1,
+            "pullquote": "Every street has a story — you just have to look."
+        },
+        {
+            "photo_id": 3,
+            "pullquote": "A stroke of red against the green — nature meets culture."
+        },
+        {
+            "photo_id": 9,
+            "pullquote": "A piercing gaze through the crowd — raw, unscripted truth."
+        },
+        {
+            "photo_id": 10,
+            "pullquote": "The surge of tradition — power, rhythm, and water."
+        }
+    ],
+    "portfolios": [
+        {
+            "type": "Brand",
+            "icon": "💼",
+            "description": "Commercial and Brand Photography",
+            "photos": [
+                {
+                    "title": "Brand Campaign 1",
+                    "url": "/images/pic1.jpg",
+                    "description": "Product and lifestyle photography for brand campaign."
+                }
+            ]
+        },
+        {
+            "type": "Event",
+            "icon": "🎪",
+            "description": "Event Coverage",
+            "photos": [
+                {
+                    "title": "Annual Exhibition",
+                    "url": "/images/pic2.jpg",
+                    "description": "Full event coverage."
+                }
+            ]
+        },
+        {
+            "type": "Corporate",
+            "icon": "🏢",
+            "description": "Corporate Events & Headshots",
+            "photos": [
+                {
+                    "title": "Corporate Event",
+                    "url": "/images/pic3.jpg",
+                    "description": "Documentary photography for corporate client."
+                }
+            ]
+        }
+    ],
+    "awards": [
+        {
+            "title": "Pabna Zila Photo Conetest",
+            "organization": "Zila Police Pabna",
+            "year": 2021,
+            "description": "Awarded First Place in the Pabna Zila Photo Conetest By Zila Police Pabna."
+        },
+        {
+            "title": "YPPB Best Photographer of The Year- Gold Medel",
+            "organization": "Young Photographer Panel Bangladesh",
+            "year": 2020,
+            "description": "Awarded Best Photographer of the Year by Young Photographer Panel Bangladesh."
+        }
+    ],
+    "services": [
+        {
+            "title": "Event Coverage",
+            "description": "Comprehensive coverage of corporate events, conferences, cultural festivals, and community gatherings with a documentary approach.",
+            "icon": "📸",
+            "features": [
+                "Full-day coverage",
+                "Edited high-res deliverables",
+                "Online gallery",
+                "Quick turnaround"
+            ]
+        },
+        {
+            "title": "Portrait Sessions",
+            "description": "Professional portrait sessions for individuals, couples, and families — both in-studio and on-location with natural light.",
+            "icon": "🖼️",
+            "features": [
+                "1-2 hour session",
+                "Multiple outfit changes",
+                "Retouched final images"
+            ]
+        },
+        {
+            "title": "Commercial & Brand",
+            "description": "Visual content creation for brands, businesses, and publications — product photography, team portraits, and brand storytelling.",
+            "icon": "💼",
+            "features": [
+                "Brand consultation",
+                "Styled shoots",
+                "Social media ready",
+                "Usage licensing"
+            ]
+        },
+        {
+            "title": "Documentary Projects",
+            "description": "Long-form visual storytelling for NGOs, editorial publications, and personal projects — capturing authentic narratives.",
+            "icon": "🎞️",
+            "features": [
+                "Multi-day shoots",
+                "Story-driven approach",
+                "Editorial editing",
+                "Publication support"
+            ]
+        }
+    ],
+    "clients": [
+        {
+            "name": "Daffodil International University Photographic Society (DIUPS)",
+            "type": "organization"
+        },
+        {
+            "name": "Daffodil International University",
+            "type": "institution"
+        },
+        {
+            "name": "Bangladesh Photographic Society",
+            "type": "organization"
+        },
+        {
+            "name": "Pacific Press Agency",
+            "type": "organization"
+        },
+        {
+            "name": "ActionAid Bangladesh",
+            "type": "organization"
+        },
+        {
+            "name": "MG Bangladesh",
+            "type": "brand"
+        },
+        {
+            "name": "Poshak By tannas",
+            "type": "brand"
+        }
+    ],
+    "testimonials": [
+        {
+            "name": "S M Abdur Razzaque",
+            "role": "Founding Convener, DIUPS",
+            "quote": "Tanvir has an extraordinary eye for capturing the essence of every moment.",
+            "rating": 5
+        },
+        {
+            "name": "Sharmin Shilpi",
+            "role": "ActionAid Bangladesh",
+            "quote": "Tanvir is a talented photographer with a keen eye for detail and a passion for storytelling. His work is both creative and impactful.",
+            "rating": 5
         }
     ]
 }

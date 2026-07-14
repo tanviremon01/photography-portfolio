@@ -17,7 +17,7 @@
     <meta property="og:image" content="https://tanvirahammademon.vercel.app/images/TanvirEmon.jpg">
 
     <title>Tanvir Ahammad Emon — Photography Portfolio</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
@@ -42,8 +42,12 @@
             </a>
             <nav class="main-nav" id="main-nav">
                 <ul>
+                    <li><a href="#highlights" class="nav-link">Highlights</a></li>
                     <li><a href="#gallery" class="nav-link">Gallery</a></li>
+                    <li><a href="#services" class="nav-link">Services</a></li>
+                    <li><a href="#portfolios" class="nav-link">Projects</a></li>
                     <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#awards" class="nav-link">Awards</a></li>
                     <li><a href="#contact" class="nav-link">Contact</a></li>
                 </ul>
             </nav>
@@ -68,10 +72,21 @@
         </div>
     </section>
 
+    <!-- ============================== HIGHLIGHTS ============================== -->
+    <section class="highlights-section" id="highlights">
+        <div class="section-header">
+            <p class="section-label">Curated</p>
+            <h2 class="section-title">Highlights</h2>
+        </div>
+        <div class="highlights-grid" id="highlights-grid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
     <!-- ============================== GALLERY ============================== -->
     <section class="gallery-section" id="gallery">
         <div class="section-header">
-            <p class="section-label">Portfolio</p>
+            <p class="section-label">GALLERY</p>
             <h2 class="section-title">Selected Works</h2>
         </div>
 
@@ -85,6 +100,55 @@
                 <div class="loader-ring"></div>
                 <p>Loading portfolio...</p>
             </div>
+        </div>
+    </section>
+
+    <!-- ============================== SERVICES ============================== -->
+    <section class="services-section" id="services">
+        <div class="section-header">
+            <p class="section-label">What I Offer</p>
+            <h2 class="section-title">Services</h2>
+        </div>
+        <div class="services-grid" id="services-grid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
+    <!-- ============================== BRAND / EVENT / CORPORATE ============================== -->
+    <section class="portfolios-section" id="portfolios">
+        <div class="section-header">
+            <p class="section-label">Projects</p>
+            <h2 class="section-title">Brand / Event / Corporate</h2>
+        </div>
+        <div class="portfolios-content" id="portfolios-content">
+            <!-- Folder cards populated by JS -->
+        </div>
+    </section>
+
+    <!-- ============================== WORKED WITH / CLIENTS ============================== -->
+    <section class="clients-section" id="clients">
+        <div class="section-header">
+            <p class="section-label">Trusted By</p>
+            <h2 class="section-title">Worked With</h2>
+        </div>
+        <div class="clients-marquee-wrapper">
+            <div class="clients-marquee" id="clients-marquee">
+                <!-- Populated by JS — duplicated for infinite scroll -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================== TESTIMONIALS ============================== -->
+    <section class="testimonials-section" id="testimonials">
+        <div class="section-header">
+            <p class="section-label">Kind Words</p>
+            <h2 class="section-title">What Clients Say</h2>
+        </div>
+        <div class="testimonials-carousel" id="testimonials-carousel">
+            <!-- Populated by JS -->
+        </div>
+        <div class="testimonials-dots" id="testimonials-dots">
+            <!-- Dot indicators populated by JS -->
         </div>
     </section>
 
@@ -121,6 +185,17 @@
         </div>
     </section>
 
+    <!-- ============================== AWARDS & CERTIFICATES ============================== -->
+    <section class="awards-section" id="awards">
+        <div class="section-header">
+            <p class="section-label">Recognition</p>
+            <h2 class="section-title">Awards & Certificates</h2>
+        </div>
+        <div class="awards-grid" id="awards-grid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
     <!-- ============================== CONTACT ============================== -->
     <section class="contact-section" id="contact">
         <div class="contact-inner">
@@ -139,7 +214,8 @@
     <!-- ============================== FOOTER ============================== -->
     <footer class="site-footer">
         <div class="footer-inner">
-            <p class="footer-copy">&copy; <span id="footer-year">2026</span> <span id="footer-author">Tanvir Ahammad Emon</span>. All rights reserved.</p>
+            <p class="footer-copy">&copy; <span id="footer-year">2026</span> <span id="footer-author">Tanvir Ahammad
+                    Emon</span>. All rights reserved.</p>
 
         </div>
     </footer>
