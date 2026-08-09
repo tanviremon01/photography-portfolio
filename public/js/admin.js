@@ -171,9 +171,58 @@
         }
     }
 
+    /* -------------------------------------------------------------------
+     * Dynamic Image Compression (Client-Side)
+     * ------------------------------------------------------------------- */
+    async function compressImage(file, maxWidth = 1920, quality = 0.8) {
+        if (!file.type.startsWith('image/')) return file;
+        if (file.type === 'image/svg+xml' || file.type === 'image/gif') return file;
+
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            // Convert blob back to a File object with the original name
+                            resolve(new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            }));
+                        } else {
+                            resolve(file);
+                        }
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = () => resolve(file);
+            };
+            reader.onerror = () => resolve(file);
+        });
+    }
+
     async function uploadFile(file, filename, folder) {
         let url = `${UPLOAD_URL}?filename=${encodeURIComponent(filename)}`;
         if (folder) url += `&folder=${encodeURIComponent(folder)}`;
+
+        // Compress the image dynamically before uploading
+        const compressedFile = await compressImage(file);
 
         const res = await fetch(url, {
             method: 'POST',
@@ -181,7 +230,7 @@
                 'X-Admin-Token': token,
                 'Content-Type': 'application/octet-stream'
             },
-            body: file
+            body: compressedFile
         });
 
         if (!res.ok) {

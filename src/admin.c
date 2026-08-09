@@ -169,7 +169,14 @@ void handle_admin_change_password(SOCKET sock, const char *body, long body_size)
     /* Remove surrounding quotes if sent as a JSON string literal */
     if (new_pass[0] == '"' && new_pass[to_copy-1] == '"' && to_copy >= 2) {
         memmove(new_pass, new_pass + 1, to_copy - 2);
-        new_pass[to_copy - 2] = '\0';
+        to_copy -= 2;
+        new_pass[to_copy] = '\0';
+    }
+
+    /* Trim trailing whitespace/newlines that might come from HTTP body */
+    while (to_copy > 0 && (new_pass[to_copy-1] == '\r' || new_pass[to_copy-1] == '\n' || new_pass[to_copy-1] == ' ')) {
+        new_pass[to_copy-1] = '\0';
+        to_copy--;
     }
 
     FILE *fp = fopen(ADMIN_PASS_PATH, "w");
