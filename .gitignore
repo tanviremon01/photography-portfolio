@@ -8,3 +8,7 @@ Thumbs.db
 
 # Any temporary log files
 *.log
+
+# Sensitive configuration files
+src/admin_pass.txt
+src/email_config.json
