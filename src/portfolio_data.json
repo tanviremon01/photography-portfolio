@@ -143,6 +143,10 @@
         {
             "photo_id": 10,
             "pullquote": "The surge of tradition — power, rhythm, and water."
+        },
+        {
+            "photo_id": 11,
+            "pullquote": ""
         }
     ],
     "portfolios": [
