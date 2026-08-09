@@ -17,6 +17,18 @@ int check_admin_auth(const char *request);
 void handle_admin_verify(SOCKET client_socket);
 
 /**
+ * POST /api/admin/password
+ * Changes the admin password.
+ */
+void handle_admin_change_password(SOCKET client_socket, const char *body, long body_size);
+
+/**
+ * POST /api/admin/forgot
+ * Triggers the password reset email. No auth required.
+ */
+void handle_admin_forgot_password(SOCKET client_socket);
+
+/**
  * POST /api/upload?filename=xxx[&folder=yyy]
  * Saves the raw binary request body as an image file under public/images/.
  * Optional "folder" query param creates a subdirectory.

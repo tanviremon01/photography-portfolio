@@ -23,7 +23,7 @@
 /* -----------------------------------------------------------------------
  * Configuration
  * ----------------------------------------------------------------------- */
-#define ADMIN_TOKEN         "tanvir2026"
+#define ADMIN_PASS_PATH     "src\\admin_pass.txt"
 #define PORTFOLIO_JSON_PATH "src\\portfolio_data.json"
 #define UPLOAD_DIR          "public\\images\\"
 #define MAX_FNAME           256
@@ -100,6 +100,28 @@ static int get_param(const char *qs, const char *key,
 }
 
 /* -----------------------------------------------------------------------
+ * Helper: get current admin password from file
+ * ----------------------------------------------------------------------- */
+static void get_admin_password(char *out, size_t max) {
+    FILE *fp = fopen(ADMIN_PASS_PATH, "r");
+    if (!fp) {
+        /* Fallback if file missing */
+        strncpy(out, "tanvir2026", max);
+        return;
+    }
+    if (fgets(out, (int)max, fp)) {
+        /* trim newline */
+        size_t len = strlen(out);
+        while (len > 0 && (out[len-1] == '\r' || out[len-1] == '\n')) {
+            out[--len] = '\0';
+        }
+    } else {
+        strncpy(out, "tanvir2026", max);
+    }
+    fclose(fp);
+}
+
+/* -----------------------------------------------------------------------
  * Check admin authentication from request headers.
  * ----------------------------------------------------------------------- */
 int check_admin_auth(const char *request) {
@@ -112,8 +134,11 @@ int check_admin_auth(const char *request) {
     pos += 14; /* skip "X-Admin-Token:" */
     while (*pos == ' ') pos++;
 
-    size_t tlen = strlen(ADMIN_TOKEN);
-    if (strncmp(pos, ADMIN_TOKEN, tlen) == 0) {
+    char current_pass[128] = {0};
+    get_admin_password(current_pass, sizeof(current_pass));
+    size_t tlen = strlen(current_pass);
+
+    if (strncmp(pos, current_pass, tlen) == 0) {
         char c = pos[tlen];
         if (c == '\r' || c == '\n' || c == '\0') return 1;
     }
@@ -125,6 +150,55 @@ int check_admin_auth(const char *request) {
  * ----------------------------------------------------------------------- */
 void handle_admin_verify(SOCKET sock) {
     send_json(sock, 200, "OK", "{\"authenticated\":true}");
+}
+
+/* -----------------------------------------------------------------------
+ * POST /api/admin/password — change admin password.
+ * Request body should contain new password in plain text.
+ * ----------------------------------------------------------------------- */
+void handle_admin_change_password(SOCKET sock, const char *body, long body_size) {
+    if (!body || body_size <= 0) {
+        send_json(sock, 400, "Bad Request", "{\"error\":\"No password provided\"}");
+        return;
+    }
+    
+    char new_pass[128] = {0};
+    size_t to_copy = body_size < sizeof(new_pass) - 1 ? (size_t)body_size : sizeof(new_pass) - 1;
+    memcpy(new_pass, body, to_copy);
+    
+    /* Remove surrounding quotes if sent as a JSON string literal */
+    if (new_pass[0] == '"' && new_pass[to_copy-1] == '"' && to_copy >= 2) {
+        memmove(new_pass, new_pass + 1, to_copy - 2);
+        new_pass[to_copy - 2] = '\0';
+    }
+
+    FILE *fp = fopen(ADMIN_PASS_PATH, "w");
+    if (!fp) {
+        send_json(sock, 500, "Internal Server Error", "{\"error\":\"Failed to save password\"}");
+        return;
+    }
+    fprintf(fp, "%s", new_pass);
+    fclose(fp);
+
+    send_json(sock, 200, "OK", "{\"success\":true,\"message\":\"Password updated\"}");
+    printf("[ADMIN] Password changed successfully.\n");
+}
+
+/* -----------------------------------------------------------------------
+ * POST /api/admin/forgot — trigger Python script to send reset email.
+ * NO AUTH REQUIRED.
+ * ----------------------------------------------------------------------- */
+void handle_admin_forgot_password(SOCKET sock) {
+    printf("[ADMIN] Triggering password reset email script...\n");
+    
+    /* Run Python script synchronously */
+    int res = system("python send_reset.py");
+    
+    if (res == 0) {
+        send_json(sock, 200, "OK", "{\"success\":true,\"message\":\"Reset email sent\"}");
+    } else {
+        send_json(sock, 500, "Internal Server Error", "{\"error\":\"Failed to send email. Check configuration.\"}");
+    }
 }
 
 /* -----------------------------------------------------------------------

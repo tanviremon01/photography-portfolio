@@ -14,6 +14,8 @@
     const SAVE_URL     = '/api/portfolio/save';
     const VERIFY_URL   = '/api/admin/verify';
     const DELETE_URL   = '/api/upload/delete';
+    const FORGOT_URL   = '/api/admin/forgot';
+    const PASSWORD_URL = '/api/admin/password';
 
     /* -------------------------------------------------------------------
      * State
@@ -65,6 +67,30 @@
             token = pw;
             await verifyToken();
         });
+
+        const forgotLink = $('#forgot-password-link');
+        if (forgotLink) {
+            forgotLink.addEventListener('click', async (e) => {
+                e.preventDefault();
+                forgotLink.textContent = 'Sending email...';
+                forgotLink.style.pointerEvents = 'none';
+                try {
+                    const res = await fetch(FORGOT_URL, { method: 'POST' });
+                    const data = await res.json();
+                    if (res.ok) {
+                        $('#login-error').style.color = 'var(--green)';
+                        $('#login-error').textContent = 'Reset email sent! Check your inbox.';
+                    } else {
+                        throw new Error(data.error || 'Failed to send reset email');
+                    }
+                } catch (err) {
+                    $('#login-error').style.color = 'var(--red)';
+                    $('#login-error').textContent = err.message;
+                }
+                forgotLink.textContent = 'Forgot Password?';
+                forgotLink.style.pointerEvents = 'auto';
+            });
+        }
     }
 
     async function verifyToken() {
@@ -875,6 +901,7 @@
             case 'testimonials': renderTestimonialsEditor(container); break;
             case 'categories':   renderCategoriesEditor(container); break;
             case 'siteinfo':     renderSiteInfoEditor(container); break;
+            case 'settings':     renderSettingsEditor(container); break;
         }
     }
 
@@ -1280,6 +1307,94 @@
                     showToast('Site info saved!', 'success');
                 }
             };
+        }
+    }
+
+    /* --- Settings --- */
+    function renderSettingsEditor(container) {
+        container.innerHTML = `
+            <div class="panel">
+                <h3 class="panel-title" style="margin-bottom:16px;">Security Settings</h3>
+                <div style="display:flex; flex-direction:column; gap:14px; max-width: 400px;">
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" class="text-input" id="new-admin-password" placeholder="Enter new password">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" class="text-input" id="confirm-admin-password" placeholder="Confirm new password">
+                    </div>
+                    <button class="btn btn-primary" id="change-password-btn" style="margin-top:10px;">Change Password</button>
+                </div>
+                <p id="password-msg" style="margin-top: 12px; font-size: 0.875rem;"></p>
+            </div>
+            
+            <div class="panel">
+                <h3 class="panel-title" style="margin-bottom:16px;">Email Configuration</h3>
+                <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px;">
+                    To use the "Forgot Password" feature, please create or update the <code>src/email_config.json</code> file on your server with your Gmail address, Gmail App Password, and recipient email.
+                </p>
+                <pre style="background: var(--bg-input); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 0.8125rem; overflow-x: auto;">
+{
+    "gmail_address": "your.email@gmail.com",
+    "gmail_app_password": "your-16-char-app-password",
+    "recipient_email": "your.email@gmail.com"
+}</pre>
+            </div>`;
+
+        const btn = $('#change-password-btn');
+        if (btn) {
+            btn.addEventListener('click', async () => {
+                const pass = $('#new-admin-password').value.trim();
+                const confirm = $('#confirm-admin-password').value.trim();
+                const msg = $('#password-msg');
+
+                if (!pass) {
+                    msg.style.color = 'var(--red)';
+                    msg.textContent = 'Please enter a password.';
+                    return;
+                }
+                if (pass !== confirm) {
+                    msg.style.color = 'var(--red)';
+                    msg.textContent = 'Passwords do not match.';
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+                
+                try {
+                    const res = await fetch(PASSWORD_URL, {
+                        method: 'POST',
+                        headers: {
+                            'X-Admin-Token': token,
+                            'Content-Type': 'text/plain'
+                        },
+                        body: pass
+                    });
+                    
+                    const data = await res.json();
+                    if (res.ok) {
+                        msg.style.color = 'var(--green)';
+                        msg.textContent = 'Password changed successfully! You will need to log in again.';
+                        showToast('Password updated!', 'success');
+                        
+                        // Log out after a brief delay
+                        setTimeout(() => {
+                            sessionStorage.removeItem('adminToken');
+                            token = '';
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        throw new Error(data.error || 'Failed to change password');
+                    }
+                } catch (err) {
+                    msg.style.color = 'var(--red)';
+                    msg.textContent = err.message;
+                    btn.disabled = false;
+                    btn.textContent = 'Change Password';
+                }
+            });
         }
     }
 

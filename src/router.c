@@ -278,7 +278,14 @@ void route_request(SOCKET client_socket, const char *request, int request_len) {
 
     /* ---- POST Routes (admin API) ---- */
     if (_stricmp(method, "POST") == 0) {
-        /* All POST routes require admin authentication */
+        
+        /* Forgot password does NOT require auth */
+        if (strcmp(path, "/api/admin/forgot") == 0) {
+            handle_admin_forgot_password(client_socket);
+            return;
+        }
+
+        /* All other POST routes require admin authentication */
         if (!check_admin_auth(request)) {
             send_error(client_socket, 401, "Unauthorized",
                        "{\"error\":\"Unauthorized\"}");
@@ -315,6 +322,8 @@ void route_request(SOCKET client_socket, const char *request, int request_len) {
                                 body, body_size);
         } else if (strcmp(path, "/api/portfolio/save") == 0) {
             handle_admin_save_portfolio(client_socket, body, body_size);
+        } else if (strcmp(path, "/api/admin/password") == 0) {
+            handle_admin_change_password(client_socket, body, body_size);
         } else {
             send_error(client_socket, 404, "Not Found",
                        "{\"error\":\"Unknown API endpoint\"}");
