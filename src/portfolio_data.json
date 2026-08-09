@@ -117,6 +117,14 @@
             "url": "/images/The_Flying_Kite.jpg",
             "thumbnail": "/images/The_Flying_Kite.jpg",
             "description": "A young boy stood atop a truck, his eyes wide with wonder as he gazed at a vibrant kite soaring high in the sky. The colorful fabric danced against the blue backdrop, tugging at the string held tightly in his small hands. With each gust of wind, the kite dipped and soared, igniting a sense of freedom and joy within him. In that moment, the world around him faded, leaving only the thrill of flight and the promise of adventure."
+        },
+        {
+            "id": 12,
+            "title": "Inside DIUPS",
+            "category": "Architecture",
+            "url": "/images/20240121_165103__3_.jpg",
+            "thumbnail": "/images/20240121_165103__3_.jpg",
+            "description": ""
         }
     ],
     "highlights": [
