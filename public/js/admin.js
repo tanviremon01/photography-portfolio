@@ -218,7 +218,10 @@
     }
 
     async function uploadFile(file, filename, folder) {
-        let url = `${UPLOAD_URL}?filename=${encodeURIComponent(filename)}`;
+        // Sanitize the filename to strictly ASCII alphanumeric to prevent Vercel 404 errors
+        let cleanName = filename.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        
+        let url = `${UPLOAD_URL}?filename=${encodeURIComponent(cleanName)}`;
         if (folder) url += `&folder=${encodeURIComponent(folder)}`;
 
         // Compress the image dynamically before uploading
