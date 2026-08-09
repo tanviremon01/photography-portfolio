@@ -30,7 +30,7 @@
 #define SERVER_PORT     8080
 #define SERVER_ADDR     "127.0.0.1"
 #define BACKLOG         10
-#define RECV_BUFFER     8192
+#define RECV_BUFFER     16384
 
 /* -----------------------------------------------------------------------
  * Global state for clean shutdown.

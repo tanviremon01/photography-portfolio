@@ -15,7 +15,7 @@ if exist "C:\msys64\mingw64\bin\gcc.exe" (
     set "PATH=C:\msys64\mingw64\bin;%PATH%"
 )
 
-gcc -Wall -Wextra -O2 -o server.exe src\server.c src\router.c src\api.c src\mime.c -lws2_32
+gcc -Wall -Wextra -O2 -o server.exe src\server.c src\router.c src\api.c src\admin.c src\mime.c -lws2_32
 
 if %ERRORLEVEL% NEQ 0 (
     echo.
