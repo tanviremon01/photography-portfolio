@@ -152,6 +152,17 @@
             "url": "/images/TAEprocessed-01340.jpg",
             "thumbnail": "/images/TAEprocessed-01340.jpg",
             "description": "Dwarfed by the colossal, rust-red hull of a massive vessel, shipyard laborers carve out a fleeting moment of rest on heavy anchor chains, finding a quiet sanctuary in an unforgiving industrial landscape."
+        },
+        {
+            "id": 16,
+            "title": "A Well-Earned Break at the Dockyard.",
+            "category": [
+                "Street",
+                "Documentary"
+            ],
+            "url": "/images/1000068432.jpg",
+            "thumbnail": "/images/1000068432.jpg",
+            "description": ""
         }
     ],
     "highlights": [
