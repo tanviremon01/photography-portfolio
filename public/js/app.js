@@ -77,11 +77,18 @@
         bar.id = 'page-progress';
         document.body.appendChild(bar);
 
+        let ticking = false;
         window.addEventListener('scroll', () => {
-            const scrolled = window.scrollY;
-            const total    = document.documentElement.scrollHeight - window.innerHeight;
-            const pct      = total > 0 ? (scrolled / total) * 100 : 0;
-            bar.style.width = pct + '%';
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrolled = window.scrollY;
+                    const total    = document.documentElement.scrollHeight - window.innerHeight;
+                    const pct      = total > 0 ? (scrolled / total) * 100 : 0;
+                    bar.style.width = pct + '%';
+                    ticking = false;
+                });
+                ticking = true;
+            }
         }, { passive: true });
     })();
 
@@ -664,12 +671,20 @@
      * HEADER — Scroll-based background.
      * ------------------------------------------------------------------- */
     function setupHeader() {
+        let ticking = false;
         const onScroll = () => {
-            if (!DOM.header) return;
-            DOM.header.classList.toggle('scrolled', window.scrollY > 60);
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    if (DOM.header) DOM.header.classList.toggle('scrolled', window.scrollY > 60);
+                    ticking = false;
+                });
+                ticking = true;
+            }
         };
         window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll();
+        
+        // Initial check without rAF needed for fast load
+        if (DOM.header) DOM.header.classList.toggle('scrolled', window.scrollY > 60);
     }
 
     /* -------------------------------------------------------------------

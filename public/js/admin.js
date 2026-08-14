@@ -229,43 +229,67 @@
         if (!file.type.startsWith('image/')) return file;
         if (file.type === 'image/svg+xml' || file.type === 'image/gif') return file;
 
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    let width = img.width;
-                    let height = img.height;
+        try {
+            // Attempt to use fast background-thread decoding if supported
+            let imgBitmap;
+            if (window.createImageBitmap) {
+                imgBitmap = await createImageBitmap(file);
+            } else {
+                // Fallback to standard Image
+                imgBitmap = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = reject;
+                    img.src = URL.createObjectURL(file);
+                });
+            }
 
-                    if (width > maxWidth) {
-                        height = Math.round((height * maxWidth) / width);
-                        width = maxWidth;
-                    }
+            let width = imgBitmap.width;
+            let height = imgBitmap.height;
 
-                    const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+            if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+            }
 
-                    canvas.toBlob((blob) => {
-                        if (blob) {
-                            // Convert blob back to a File object with the original name
-                            resolve(new File([blob], file.name, {
-                                type: 'image/jpeg',
-                                lastModified: Date.now()
-                            }));
-                        } else {
-                            resolve(file);
-                        }
-                    }, 'image/jpeg', quality);
-                };
-                img.onerror = () => resolve(file);
-            };
-            reader.onerror = () => resolve(file);
-        });
+            // Attempt to use OffscreenCanvas for background-thread rendering if supported
+            let canvas, ctx;
+            if (window.OffscreenCanvas) {
+                canvas = new OffscreenCanvas(width, height);
+                ctx = canvas.getContext('2d');
+            } else {
+                canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                ctx = canvas.getContext('2d');
+            }
+
+            ctx.drawImage(imgBitmap, 0, 0, width, height);
+            
+            // Clean up memory
+            if (imgBitmap.close) imgBitmap.close();
+            else if (imgBitmap.src) URL.revokeObjectURL(imgBitmap.src);
+
+            let blob;
+            if (canvas.convertToBlob) {
+                // OffscreenCanvas
+                blob = await canvas.convertToBlob({ type: 'image/jpeg', quality });
+            } else {
+                // Standard Canvas
+                blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', quality));
+            }
+
+            if (!blob) return file;
+
+            return new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+            });
+
+        } catch (err) {
+            console.error('Image compression failed, returning original file', err);
+            return file;
+        }
     }
 
     async function uploadFile(file, filename, folder) {
