@@ -102,6 +102,12 @@
         if (forgotLink) {
             forgotLink.addEventListener('click', async (e) => {
                 e.preventDefault();
+                if (!IS_LOCAL) {
+                    $('#login-error').style.color = 'var(--blue)';
+                    $('#login-error').textContent = 'Live mode: Use password "tanvir2026". (Email reset only works on local server).';
+                    return;
+                }
+
                 forgotLink.textContent = 'Sending email...';
                 forgotLink.style.pointerEvents = 'none';
                 try {
@@ -125,6 +131,18 @@
 
     async function verifyToken() {
         try {
+            if (!IS_LOCAL) {
+                // Vercel static hosting has no backend.
+                // The actual security is the GitHub PAT entered later.
+                // This is just a layout lock to prevent randoms from seeing the UI.
+                if (token === 'tanvir2026') {
+                    sessionStorage.setItem('adminToken', token);
+                    showAdmin();
+                    return;
+                }
+                throw new Error('Invalid');
+            }
+
             const res = await fetch(VERIFY_URL, {
                 method: 'POST',
                 headers: { 'X-Admin-Token': token }
@@ -1685,6 +1703,12 @@
                 const pass = $('#new-admin-password').value.trim();
                 const confirm = $('#confirm-admin-password').value.trim();
                 const msg = $('#password-msg');
+
+                if (!IS_LOCAL) {
+                    msg.style.color = 'var(--blue)';
+                    msg.textContent = 'Password changing is only available on the local server.';
+                    return;
+                }
 
                 if (!pass) {
                     msg.style.color = 'var(--red)';
