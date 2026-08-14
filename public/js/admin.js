@@ -33,17 +33,17 @@
     let ghBranch = 'main'; // Branch to commit to
 
     function loadGhConfig() {
-        ghToken  = sessionStorage.getItem('gh_token')  || '';
-        ghOwner  = sessionStorage.getItem('gh_owner')  || '';
-        ghRepo   = sessionStorage.getItem('gh_repo')   || '';
-        ghBranch = sessionStorage.getItem('gh_branch') || 'main';
+        ghToken  = localStorage.getItem('gh_token')  || '';
+        ghOwner  = localStorage.getItem('gh_owner')  || '';
+        ghRepo   = localStorage.getItem('gh_repo')   || '';
+        ghBranch = localStorage.getItem('gh_branch') || 'main';
     }
 
     function saveGhConfig() {
-        sessionStorage.setItem('gh_token',  ghToken);
-        sessionStorage.setItem('gh_owner',  ghOwner);
-        sessionStorage.setItem('gh_repo',   ghRepo);
-        sessionStorage.setItem('gh_branch', ghBranch);
+        localStorage.setItem('gh_token',  ghToken);
+        localStorage.setItem('gh_owner',  ghOwner);
+        localStorage.setItem('gh_repo',   ghRepo);
+        localStorage.setItem('gh_branch', ghBranch);
     }
 
     /* -------------------------------------------------------------------
@@ -1646,7 +1646,7 @@
                 ghToken  = ($('#gh-token').value || '').trim();
                 saveGhConfig();
                 ghMsg.style.color = 'var(--green)';
-                ghMsg.textContent = '✓ Config saved (session only — never sent to any server except GitHub).';
+                ghMsg.textContent = '✓ Config saved permanently in this browser.';
                 showToast('GitHub config saved!', 'success');
             };
         }
@@ -1688,7 +1688,7 @@
         const clearGhBtn = $('#clear-gh-config');
         if (clearGhBtn) {
             clearGhBtn.onclick = () => {
-                ['gh_token','gh_owner','gh_repo','gh_branch'].forEach(k => sessionStorage.removeItem(k));
+                ['gh_token','gh_owner','gh_repo','gh_branch'].forEach(k => localStorage.removeItem(k));
                 ghToken = ghOwner = ghRepo = '';
                 ghBranch = 'main';
                 renderDataContent(); // re-render to clear inputs
