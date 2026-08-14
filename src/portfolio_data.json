@@ -141,6 +141,17 @@
             "url": "/images/TAEprocessed-01257.JPG",
             "thumbnail": "/images/TAEprocessed-01257.JPG",
             "description": "Bound by a shared silence and a life lived close to the earth. In the company of his goats, an old man's narrative quietly unfolds, a story of patience, partnership, and the simple beauty of existence. 'Tale of an Old Man' offers a rare glimpse into a vanishing world."
+        },
+        {
+            "id": 15,
+            "title": "A Pause in the Iron",
+            "category": [
+                "Street",
+                "Documentary"
+            ],
+            "url": "/images/TAEprocessed-01340.jpg",
+            "thumbnail": "/images/TAEprocessed-01340.jpg",
+            "description": "Dwarfed by the colossal, rust-red hull of a massive vessel, shipyard laborers carve out a fleeting moment of rest on heavy anchor chains, finding a quiet sanctuary in an unforgiving industrial landscape."
         }
     ],
     "highlights": [
