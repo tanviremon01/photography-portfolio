@@ -4,6 +4,29 @@
    =========================================================================== */
 
 /* -----------------------------------------------------------------------
+   0. PAGE PROGRESS BAR
+   ----------------------------------------------------------------------- */
+#page-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light), var(--color-accent));
+    background-size: 200% 100%;
+    z-index: 9999;
+    transition: width 0.25s ease;
+    animation: progressShimmer 1.5s ease infinite;
+    pointer-events: none;
+}
+
+@keyframes progressShimmer {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 0%; }
+    100% { background-position: 0% 0%; }
+}
+
+/* -----------------------------------------------------------------------
    1. DESIGN TOKENS (Custom Properties)
    ----------------------------------------------------------------------- */
 :root {
@@ -697,6 +720,48 @@ ul {
     gap: var(--space-md);
     position: relative;
     min-height: 200px;
+    transition: opacity 0.25s ease;
+}
+
+.gallery-grid.filtering {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Skeleton loading placeholder */
+.gallery-skeleton {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-md);
+}
+
+.skeleton-card {
+    height: 300px;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-card);
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 40%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.04) 60%,
+        transparent 100%
+    );
+    animation: shimmerSweep 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmerSweep {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
 /* Loading state */
@@ -1010,6 +1075,12 @@ ul {
     font-weight: var(--fw-bold);
     color: var(--color-accent);
     line-height: 1;
+    /* count-up animation highlight */
+    transition: transform 0.15s var(--transition-spring);
+}
+
+.stat-number.count-pulse {
+    transform: scale(1.15);
 }
 
 .stat-label {
@@ -1476,24 +1547,31 @@ ul {
     color: var(--color-text-secondary);
     z-index: 90;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    transition: all var(--transition-normal);
+    transition: all var(--transition-smooth);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    animation: adminBtnPulse 3s ease-in-out infinite;
+}
+
+@keyframes adminBtnPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(201, 168, 76, 0); }
+    50%       { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 6px rgba(201, 168, 76, 0.08); }
 }
 
 .floating-admin-btn:hover {
     color: var(--color-accent);
     border-color: var(--color-accent);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px var(--color-accent-dim);
+    transform: translateY(-3px) scale(1.08);
+    box-shadow: 0 8px 25px var(--color-accent-glow);
+    animation: none;
 }
 
 .floating-admin-btn svg {
-    transition: transform var(--transition-normal);
+    transition: transform var(--transition-smooth);
 }
 
 .floating-admin-btn:hover svg {
-    transform: scale(1.1);
+    transform: rotate(10deg) scale(1.15);
 }
 
 @media (max-width: 768px) {
@@ -1566,6 +1644,26 @@ ul {
         opacity: 1;
         transform: translate(-50%, 0);
     }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
 @keyframes spin {

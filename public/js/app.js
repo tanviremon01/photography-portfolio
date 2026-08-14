@@ -69,6 +69,22 @@
      * ------------------------------------------------------------------- */
     document.addEventListener('DOMContentLoaded', init);
 
+    /* -------------------------------------------------------------------
+     * PAGE PROGRESS BAR — shows a thin gold bar at the top while scrolling
+     * ------------------------------------------------------------------- */
+    (function setupProgressBar() {
+        const bar = document.createElement('div');
+        bar.id = 'page-progress';
+        document.body.appendChild(bar);
+
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const total    = document.documentElement.scrollHeight - window.innerHeight;
+            const pct      = total > 0 ? (scrolled / total) * 100 : 0;
+            bar.style.width = pct + '%';
+        }, { passive: true });
+    })();
+
     function init() {
         setupHeader();
         setupMobileMenu();
@@ -81,6 +97,8 @@
      * DATA FETCHING — Load portfolio JSON from the C backend.
      * ------------------------------------------------------------------- */
     async function fetchPortfolio() {
+        // Show skeleton loading cards while fetching
+        showGallerySkeleton();
         try {
             const response = await fetch(API_URL);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -95,10 +113,19 @@
             renderClients();
             renderTestimonials();
             setupScrollAnimations();
+            setupStatsCountUp();
         } catch (err) {
             console.error('[Portfolio] Failed to fetch data:', err);
             showError();
         }
+    }
+
+    function showGallerySkeleton() {
+        if (!DOM.galleryGrid) return;
+        DOM.galleryGrid.innerHTML = `
+            <div class="gallery-skeleton">
+                ${Array.from({length: 6}).map(() => '<div class="skeleton-card"></div>').join('')}
+            </div>`;
     }
 
     /* -------------------------------------------------------------------
@@ -464,7 +491,7 @@
             btn.addEventListener('click', () => {
                 activeCategory = cat;
                 updateFilterButtons();
-                renderGallery();
+                renderGallery(true); // animate = true
             });
             DOM.filterBar.appendChild(btn);
         });
@@ -478,9 +505,9 @@
     }
 
     /* -------------------------------------------------------------------
-     * GALLERY — Render photo cards into the CSS Grid.
+     * GALLERY — Render photo cards with smooth filter fade transition.
      * ------------------------------------------------------------------- */
-    function renderGallery() {
+    function renderGallery(animate = true) {
         if (!DOM.galleryGrid || !portfolioData.photos) return;
 
         /* Filter photos */
@@ -493,55 +520,65 @@
                 return p.category === activeCategory;
             });
 
-        /* Clear existing content */
-        DOM.galleryGrid.innerHTML = '';
+        function buildCards() {
+            DOM.galleryGrid.innerHTML = '';
 
-        if (filteredPhotos.length === 0) {
-            DOM.galleryGrid.innerHTML =
-                '<div class="gallery-loading"><p>No photos in this category yet.</p></div>';
-            return;
+            if (filteredPhotos.length === 0) {
+                DOM.galleryGrid.innerHTML =
+                    '<div class="gallery-loading"><p>No photos in this category yet.</p></div>';
+                return;
+            }
+
+            filteredPhotos.forEach((photo, index) => {
+                const card = document.createElement('div');
+                card.className = 'photo-card';
+                card.setAttribute('data-index', index);
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('aria-label', 'View ' + photo.title);
+
+                card.innerHTML = `
+                    <img src="${escapeHtml(photo.thumbnail || photo.url)}"
+                         alt="${escapeHtml(photo.title)}"
+                         loading="lazy"
+                         draggable="false">
+                    <div class="photo-card-overlay">
+                        <span class="photo-card-category">${escapeHtml(Array.isArray(photo.category) ? photo.category.join(', ') : photo.category)}</span>
+                        <h3 class="photo-card-title">${escapeHtml(photo.title)}</h3>
+                        <p class="photo-card-desc">${escapeHtml(photo.description)}</p>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => openLightbox(index));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openLightbox(index);
+                    }
+                });
+
+                DOM.galleryGrid.appendChild(card);
+            });
+
+            /* Staggered entrance animations */
+            requestAnimationFrame(() => {
+                const cards = DOM.galleryGrid.querySelectorAll('.photo-card');
+                cards.forEach((card, i) => {
+                    setTimeout(() => card.classList.add('visible'), i * 60);
+                });
+            });
         }
 
-        /* Build photo cards */
-        filteredPhotos.forEach((photo, index) => {
-            const card = document.createElement('div');
-            card.className = 'photo-card';
-            card.setAttribute('data-index', index);
-            card.setAttribute('role', 'button');
-            card.setAttribute('tabindex', '0');
-            card.setAttribute('aria-label', 'View ' + photo.title);
-
-            card.innerHTML = `
-                <img src="${escapeHtml(photo.thumbnail || photo.url)}"
-                     alt="${escapeHtml(photo.title)}"
-                     loading="lazy"
-                     draggable="false">
-                <div class="photo-card-overlay">
-                    <span class="photo-card-category">${escapeHtml(Array.isArray(photo.category) ? photo.category.join(', ') : photo.category)}</span>
-                    <h3 class="photo-card-title">${escapeHtml(photo.title)}</h3>
-                    <p class="photo-card-desc">${escapeHtml(photo.description)}</p>
-                </div>
-            `;
-
-            /* Click to open lightbox */
-            card.addEventListener('click', () => openLightbox(index));
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    openLightbox(index);
-                }
-            });
-
-            DOM.galleryGrid.appendChild(card);
-        });
-
-        /* Trigger entrance animations */
-        requestAnimationFrame(() => {
-            const cards = DOM.galleryGrid.querySelectorAll('.photo-card');
-            cards.forEach((card, i) => {
-                setTimeout(() => card.classList.add('visible'), i * 80);
-            });
-        });
+        if (animate) {
+            /* Fade out → swap content → fade back in */
+            DOM.galleryGrid.classList.add('filtering');
+            setTimeout(() => {
+                buildCards();
+                DOM.galleryGrid.classList.remove('filtering');
+            }, 220);
+        } else {
+            buildCards();
+        }
     }
 
     /* -------------------------------------------------------------------
@@ -696,7 +733,7 @@
                     }
                 });
             },
-            { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+            { threshold: 0.12, rootMargin: '0px 0px -50px 0px' }
         );
 
         revealElements.forEach((el) => observer.observe(el));
@@ -706,18 +743,71 @@
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
+                        /* Stagger siblings by order within their parent */
+                        const siblings = Array.from(entry.target.parentElement.children);
+                        const idx = siblings.indexOf(entry.target);
+                        setTimeout(() => entry.target.classList.add('visible'), idx * 80);
                         cardObserver.unobserve(entry.target);
                     }
                 });
             },
-            { threshold: 0.1, rootMargin: '0px 0px -20px 0px' }
+            { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
         );
 
         [...$$('.award-card'), ...$$('.service-card'), ...$$('.highlight-card'), ...$$('.project-folder')].forEach((card) => {
             card.classList.remove('visible');
             cardObserver.observe(card);
         });
+    }
+
+    /* -------------------------------------------------------------------
+     * COUNT-UP ANIMATION — Animates stat numbers when about section visible.
+     * ------------------------------------------------------------------- */
+    function setupStatsCountUp() {
+        const statNumbers = $$('.stat-number');
+        if (!statNumbers.length) return;
+
+        // Store targets before zeroing them out
+        const targets = Array.from(statNumbers).map(el => {
+            const raw = el.textContent.trim();
+            const num = parseInt(raw.replace(/[^0-9]/g, ''), 10) || 0;
+            const suffix = raw.replace(/[0-9]/g, '').trim();
+            return { el, num, suffix, started: false };
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                const target = targets.find(t => t.el === entry.target);
+                if (!target || target.started) return;
+                target.started = true;
+                animateCount(target.el, target.num, target.suffix);
+                observer.unobserve(entry.target);
+            });
+        }, { threshold: 0.5 });
+
+        statNumbers.forEach(el => observer.observe(el));
+    }
+
+    function animateCount(el, target, suffix) {
+        const duration = 1200;
+        const start = performance.now();
+        const step = (now) => {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = Math.round(eased * target);
+            el.textContent = current + suffix;
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            } else {
+                el.textContent = target + suffix;
+                el.classList.add('count-pulse');
+                setTimeout(() => el.classList.remove('count-pulse'), 200);
+            }
+        };
+        requestAnimationFrame(step);
     }
 
     /* -------------------------------------------------------------------

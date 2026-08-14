@@ -18,6 +18,35 @@
     const PASSWORD_URL = '/api/admin/password';
 
     /* -------------------------------------------------------------------
+     * Environment Detection
+     * Is this running on the local C server, or on Vercel/live?
+     * ------------------------------------------------------------------- */
+    const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+    /* -------------------------------------------------------------------
+     * GitHub API Config (for live/Vercel mode)
+     * Loaded from sessionStorage and set in Settings tab.
+     * ------------------------------------------------------------------- */
+    let ghToken  = '';  // Personal Access Token (repo scope)
+    let ghOwner  = '';  // GitHub username
+    let ghRepo   = '';  // Repository name
+    let ghBranch = 'main'; // Branch to commit to
+
+    function loadGhConfig() {
+        ghToken  = sessionStorage.getItem('gh_token')  || '';
+        ghOwner  = sessionStorage.getItem('gh_owner')  || '';
+        ghRepo   = sessionStorage.getItem('gh_repo')   || '';
+        ghBranch = sessionStorage.getItem('gh_branch') || 'main';
+    }
+
+    function saveGhConfig() {
+        sessionStorage.setItem('gh_token',  ghToken);
+        sessionStorage.setItem('gh_owner',  ghOwner);
+        sessionStorage.setItem('gh_repo',   ghRepo);
+        sessionStorage.setItem('gh_branch', ghBranch);
+    }
+
+    /* -------------------------------------------------------------------
      * State
      * ------------------------------------------------------------------- */
     let data           = null;   // Full portfolio data object
@@ -44,6 +73,7 @@
     document.addEventListener('DOMContentLoaded', init);
 
     function init() {
+        loadGhConfig();
         setupLoginForm();
         setupNavigation();
         setupLogout();
@@ -154,6 +184,9 @@
     }
 
     async function saveData() {
+        if (!IS_LOCAL) {
+            return await saveDataViaGitHub();
+        }
         try {
             const res = await fetch(SAVE_URL, {
                 method: 'POST',
@@ -220,12 +253,16 @@
     async function uploadFile(file, filename, folder) {
         // Sanitize the filename to strictly ASCII alphanumeric to prevent Vercel 404 errors
         let cleanName = filename.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-        
-        let url = `${UPLOAD_URL}?filename=${encodeURIComponent(cleanName)}`;
-        if (folder) url += `&folder=${encodeURIComponent(folder)}`;
 
         // Compress the image dynamically before uploading
         const compressedFile = await compressImage(file);
+
+        if (!IS_LOCAL) {
+            return await uploadFileViaGitHub(compressedFile, cleanName, folder);
+        }
+
+        let url = `${UPLOAD_URL}?filename=${encodeURIComponent(cleanName)}`;
+        if (folder) url += `&folder=${encodeURIComponent(folder)}`;
 
         const res = await fetch(url, {
             method: 'POST',
@@ -241,6 +278,130 @@
             throw new Error(err.error || 'Upload failed');
         }
         return await res.json();
+    }
+
+    /* -------------------------------------------------------------------
+     * GITHUB API — Commit a file directly to the repository.
+     * This makes Vercel auto-deploy with the new content.
+     * ------------------------------------------------------------------- */
+    function ghHeaders() {
+        if (!ghToken) throw new Error('GitHub token not configured. Go to Settings \u2192 GitHub Config.');
+        return {
+            'Authorization': 'token ' + ghToken,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+        };
+    }
+
+    async function githubGetFileSha(path) {
+        const url = `https://api.github.com/repos/${ghOwner}/${ghRepo}/contents/${path}?ref=${ghBranch}`;
+        const res = await fetch(url, { headers: ghHeaders() });
+        if (res.status === 404) return null;   // file doesn't exist yet
+        if (!res.ok) throw new Error(`GitHub API error (${res.status})`);
+        const json = await res.json();
+        return json.sha || null;
+    }
+
+    async function githubCommitFile(path, base64Content, commitMessage) {
+        showDeployStatus('deploying', 'Committing to GitHub...');
+        const sha = await githubGetFileSha(path);
+        const url = `https://api.github.com/repos/${ghOwner}/${ghRepo}/contents/${path}`;
+        const body = {
+            message: commitMessage,
+            content: base64Content,
+            branch: ghBranch
+        };
+        if (sha) body.sha = sha;  // required for updates
+
+        const res = await fetch(url, {
+            method: 'PUT',
+            headers: ghHeaders(),
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || `GitHub commit failed (${res.status})`);
+        }
+        showDeployStatus('deploying', 'Vercel deploying (~30s)...');
+        return await res.json();
+    }
+
+    async function saveDataViaGitHub() {
+        try {
+            if (!ghOwner || !ghRepo || !ghToken) {
+                showToast('Configure GitHub in Settings first!', 'error');
+                return false;
+            }
+            const json = JSON.stringify(data, null, 4);
+            const base64 = btoa(unescape(encodeURIComponent(json)));
+            await githubCommitFile(
+                'src/portfolio_data.json',
+                base64,
+                'admin: update portfolio data'
+            );
+            showDeployStatus('success', 'Deployed! Changes live in ~30s.');
+            return true;
+        } catch (err) {
+            showDeployStatus('error', err.message);
+            showToast('GitHub save failed: ' + err.message, 'error');
+            return false;
+        }
+    }
+
+    async function uploadFileViaGitHub(file, cleanName, folder) {
+        if (!ghOwner || !ghRepo || !ghToken) {
+            throw new Error('Configure GitHub in Settings first!');
+        }
+        const path = folder
+            ? `public/images/${folder}/${cleanName}`
+            : `public/images/${cleanName}`;
+        const urlPath = folder
+            ? `/images/${folder}/${cleanName}`
+            : `/images/${cleanName}`;
+
+        // Convert file to base64
+        const base64 = await fileToBase64(file);
+        await githubCommitFile(path, base64, `admin: upload ${cleanName}`);
+        return { success: true, url: urlPath, filename: cleanName, size: file.size };
+    }
+
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                // reader.result is like "data:image/jpeg;base64,XXXXX"
+                const base64 = reader.result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    /* -------------------------------------------------------------------
+     * DEPLOY STATUS BAR
+     * Appears at the top of the admin panel to show GitHub/Vercel status.
+     * ------------------------------------------------------------------- */
+    let deployStatusTimer = null;
+
+    function showDeployStatus(state, message) {
+        let bar = document.getElementById('deploy-status-bar');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'deploy-status-bar';
+            document.getElementById('main-content').prepend(bar);
+        }
+        bar.className = 'deploy-status-bar deploy-' + state;
+        const icons = { deploying: '⟳', success: '✓', error: '✕' };
+        bar.innerHTML = `<span class="deploy-icon">${icons[state] || ''}</span><span>${escapeHtml(message)}</span>`;
+        bar.style.display = 'flex';
+
+        clearTimeout(deployStatusTimer);
+        if (state === 'success' || state === 'error') {
+            deployStatusTimer = setTimeout(() => {
+                bar.style.display = 'none';
+            }, 6000);
+        }
     }
 
     /* ===================================================================
@@ -1364,7 +1525,59 @@
 
     /* --- Settings --- */
     function renderSettingsEditor(container) {
+        const isLive = !IS_LOCAL;
+        const modeLabel = isLive
+            ? '<span class="mode-badge mode-live">🌐 Live / Vercel Mode</span>'
+            : '<span class="mode-badge mode-local">💻 Local Server Mode</span>';
+
         container.innerHTML = `
+            <div class="panel">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                    <h3 class="panel-title">Environment</h3>
+                    ${modeLabel}
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    ${isLive
+                        ? 'Running on Vercel. Uploads and saves will commit directly to GitHub (no push needed). Configure your GitHub credentials below.'
+                        : 'Running locally via server.exe. Uploads and saves go to the local C server as normal. GitHub config is only needed for the live site.'}
+                </p>
+            </div>
+
+            <div class="panel" id="github-config-panel">
+                <h3 class="panel-title" style="margin-bottom:6px;">GitHub API Config</h3>
+                <p style="color: var(--text-secondary); font-size: 0.8125rem; margin-bottom:16px;">
+                    Required to upload photos and save data on the live Vercel site without pushing to GitHub.
+                    Get a <a href="https://github.com/settings/tokens/new?scopes=repo&description=TAE+Admin+Panel" target="_blank" style="color:var(--accent);">Personal Access Token (PAT)</a> with <code>repo</code> scope.
+                </p>
+                <div style="display:flex; flex-direction:column; gap:14px; max-width:480px;">
+                    <div class="form-group">
+                        <label>GitHub Username</label>
+                        <input class="text-input" id="gh-owner" placeholder="e.g. tanviremon01" value="${escapeHtml(ghOwner)}">
+                    </div>
+                    <div class="form-group">
+                        <label>Repository Name</label>
+                        <input class="text-input" id="gh-repo" placeholder="e.g. photography-portfolio" value="${escapeHtml(ghRepo)}">
+                    </div>
+                    <div class="form-group">
+                        <label>Branch</label>
+                        <input class="text-input" id="gh-branch" placeholder="main" value="${escapeHtml(ghBranch)}">
+                    </div>
+                    <div class="form-group">
+                        <label>Personal Access Token (PAT)</label>
+                        <div style="position:relative;">
+                            <input type="password" class="text-input" id="gh-token" placeholder="ghp_xxxxxxxx" value="${escapeHtml(ghToken)}" style="padding-right: 80px;">
+                            <button class="btn btn-ghost btn-sm" id="gh-token-toggle" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:0.75rem;">Show</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-primary" id="save-gh-config">Save Config</button>
+                        <button class="btn btn-ghost" id="test-gh-config">Test Connection</button>
+                        <button class="btn btn-ghost" id="clear-gh-config" style="color:var(--red);">Clear</button>
+                    </div>
+                    <p id="gh-config-msg" style="font-size: 0.8125rem;"></p>
+                </div>
+            </div>
+
             <div class="panel">
                 <h3 class="panel-title" style="margin-bottom:16px;">Security Settings</h3>
                 <div style="display:flex; flex-direction:column; gap:14px; max-width: 400px;">
@@ -1380,7 +1593,7 @@
                 </div>
                 <p id="password-msg" style="margin-top: 12px; font-size: 0.875rem;"></p>
             </div>
-            
+
             <div class="panel">
                 <h3 class="panel-title" style="margin-bottom:16px;">Email Configuration</h3>
                 <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px;">
@@ -1394,6 +1607,78 @@
 }</pre>
             </div>`;
 
+        /* --- GitHub config wire-up --- */
+        const tokenInput = $('#gh-token');
+        const tokenToggle = $('#gh-token-toggle');
+        if (tokenToggle && tokenInput) {
+            tokenToggle.onclick = () => {
+                tokenInput.type = tokenInput.type === 'password' ? 'text' : 'password';
+                tokenToggle.textContent = tokenInput.type === 'password' ? 'Show' : 'Hide';
+            };
+        }
+
+        const ghMsg = $('#gh-config-msg');
+
+        const saveGhBtn = $('#save-gh-config');
+        if (saveGhBtn) {
+            saveGhBtn.onclick = () => {
+                ghOwner  = ($('#gh-owner').value || '').trim();
+                ghRepo   = ($('#gh-repo').value || '').trim();
+                ghBranch = ($('#gh-branch').value || 'main').trim();
+                ghToken  = ($('#gh-token').value || '').trim();
+                saveGhConfig();
+                ghMsg.style.color = 'var(--green)';
+                ghMsg.textContent = '✓ Config saved (session only — never sent to any server except GitHub).';
+                showToast('GitHub config saved!', 'success');
+            };
+        }
+
+        const testGhBtn = $('#test-gh-config');
+        if (testGhBtn) {
+            testGhBtn.onclick = async () => {
+                testGhBtn.disabled = true;
+                testGhBtn.textContent = 'Testing...';
+                ghMsg.style.color = '';
+                ghMsg.textContent = '';
+                try {
+                    const owner = ($('#gh-owner').value || '').trim();
+                    const repo  = ($('#gh-repo').value || '').trim();
+                    const tok   = ($('#gh-token').value || '').trim();
+                    if (!owner || !repo || !tok) throw new Error('Fill in all fields first.');
+                    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+                        headers: { 'Authorization': 'token ' + tok }
+                    });
+                    if (!res.ok) {
+                        const j = await res.json().catch(() => ({}));
+                        throw new Error(j.message || `HTTP ${res.status}`);
+                    }
+                    const info = await res.json();
+                    ghMsg.style.color = 'var(--green)';
+                    ghMsg.textContent = `✓ Connected! Repo: ${info.full_name} (${info.private ? 'private' : 'public'})`;
+                    showToast('GitHub connection OK!', 'success');
+                } catch (err) {
+                    ghMsg.style.color = 'var(--red)';
+                    ghMsg.textContent = '✕ ' + err.message;
+                    showToast('Connection failed: ' + err.message, 'error');
+                } finally {
+                    testGhBtn.disabled = false;
+                    testGhBtn.textContent = 'Test Connection';
+                }
+            };
+        }
+
+        const clearGhBtn = $('#clear-gh-config');
+        if (clearGhBtn) {
+            clearGhBtn.onclick = () => {
+                ['gh_token','gh_owner','gh_repo','gh_branch'].forEach(k => sessionStorage.removeItem(k));
+                ghToken = ghOwner = ghRepo = '';
+                ghBranch = 'main';
+                renderDataContent(); // re-render to clear inputs
+                showToast('GitHub config cleared.', 'info');
+            };
+        }
+
+        /* --- Password change wire-up --- */
         const btn = $('#change-password-btn');
         if (btn) {
             btn.addEventListener('click', async () => {
@@ -1414,7 +1699,7 @@
 
                 btn.disabled = true;
                 btn.textContent = 'Saving...';
-                
+
                 try {
                     const res = await fetch(PASSWORD_URL, {
                         method: 'POST',
@@ -1424,13 +1709,13 @@
                         },
                         body: pass
                     });
-                    
-                    const data = await res.json();
+
+                    const resData = await res.json();
                     if (res.ok) {
                         msg.style.color = 'var(--green)';
                         msg.textContent = 'Password changed successfully! You will need to log in again.';
                         showToast('Password updated!', 'success');
-                        
+
                         // Log out after a brief delay
                         setTimeout(() => {
                             sessionStorage.removeItem('adminToken');
@@ -1438,7 +1723,7 @@
                             window.location.reload();
                         }, 2000);
                     } else {
-                        throw new Error(data.error || 'Failed to change password');
+                        throw new Error(resData.error || 'Failed to change password');
                     }
                 } catch (err) {
                     msg.style.color = 'var(--red)';
