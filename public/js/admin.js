@@ -592,7 +592,7 @@
         const cats = (data && data.categories) ? data.categories : ['All'];
         const catOptions = cats
             .filter(c => c !== 'All')
-            .map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
+            .map(c => `<label style="display:inline-flex; align-items:center; gap:4px; font-weight:normal; margin-right:10px; font-size:0.875rem; cursor:pointer;"><input type="checkbox" class="upload-category" value="${escapeHtml(c)}">${escapeHtml(c)}</label>`)
             .join('');
 
         // Build target options (gallery + projects)
@@ -614,8 +614,10 @@
                         <input type="text" class="text-input upload-title" value="${escapeHtml(autoTitle)}" placeholder="Photo title">
                     </div>
                     <div class="form-group" style="flex:1">
-                        <label>Category</label>
-                        <select class="select-input upload-category">${catOptions}</select>
+                        <label>Categories</label>
+                        <div style="padding: 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); max-height: 40px; overflow-y: auto; background: var(--bg-input); display:flex; flex-wrap:wrap; align-items:center;">
+                            ${catOptions}
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -669,7 +671,8 @@
     async function processUploadItem(item) {
         const file = item._file;
         const title = item.querySelector('.upload-title').value.trim() || 'Untitled';
-        const category = item.querySelector('.upload-category').value || 'All';
+        const checkedCats = Array.from(item.querySelectorAll('.upload-category:checked')).map(cb => cb.value);
+        const category = checkedCats.length > 0 ? checkedCats : ['All'];
         const description = item.querySelector('.upload-desc').value.trim();
         const target = item.querySelector('.upload-target').value;
 
@@ -857,7 +860,14 @@
         if (!photo) return;
 
         const cats = (data.categories || []).filter(c => c !== 'All');
-        const currentCat = Array.isArray(photo.category) ? photo.category.join(', ') : (photo.category || '');
+        const currentCats = Array.isArray(photo.category) ? photo.category : [photo.category || 'All'];
+
+        const catOptions = cats.map(c => `
+            <label style="display:inline-flex; align-items:center; gap:4px; font-weight:normal; margin-right:10px; font-size:0.875rem; cursor:pointer;">
+                <input type="checkbox" class="edit-category-cb" value="${escapeHtml(c)}" ${currentCats.includes(c) ? 'checked' : ''}>
+                ${escapeHtml(c)}
+            </label>
+        `).join('');
 
         showModal('Edit Photo', `
             <div class="form-group">
@@ -865,9 +875,10 @@
                 <input type="text" class="text-input" id="edit-title" value="${escapeHtml(photo.title)}">
             </div>
             <div class="form-group">
-                <label>Category (comma-separated for multiple)</label>
-                <input type="text" class="text-input" id="edit-category" value="${escapeHtml(currentCat)}"
-                    placeholder="e.g. Street, Documentary">
+                <label>Categories</label>
+                <div style="padding: 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); max-height: 80px; overflow-y: auto; background: var(--bg-input); display:flex; flex-wrap:wrap; align-items:center;">
+                    ${catOptions}
+                </div>
             </div>
             <div class="form-group">
                 <label>Description</label>
@@ -879,10 +890,8 @@
             </div>
         `, async () => {
             photo.title = $('#edit-title').value.trim();
-            const catStr = $('#edit-category').value.trim();
-            photo.category = catStr.includes(',')
-                ? catStr.split(',').map(c => c.trim()).filter(Boolean)
-                : catStr;
+            const checkedCats = Array.from(document.querySelectorAll('.edit-category-cb:checked')).map(cb => cb.value);
+            photo.category = checkedCats.length > 0 ? checkedCats : ['All'];
             photo.description = $('#edit-desc').value.trim();
             photo.url = $('#edit-url').value.trim();
             photo.thumbnail = photo.url;
