@@ -1014,6 +1014,7 @@ ul {
 .awards-section {
     padding: var(--space-3xl) var(--container-pad);
     background: var(--color-bg-secondary);
+    overflow: hidden;
 }
 
 .awards-grid {
