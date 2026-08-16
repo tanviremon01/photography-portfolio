@@ -1,5 +1,9 @@
 # Tanvir Ahammad Emon — Photography Portfolio
 
+> [!CAUTION]
+> **PRIVATE REPOSITORY — INTERNAL USE ONLY**
+> This repository and its documentation are strictly for the personal use of Tanvir Ahammad Emon. It is not open source and must not be distributed or made public.
+
 ## 📸 What's the Project
 This project is a dynamic, high-performance photography portfolio built to showcase landscape, portrait, street, and documentary photography. It features a modern, responsive frontend built entirely with **Vanilla JavaScript, HTML, and CSS** (no heavy frameworks like React or Node.js). 
 
@@ -111,4 +115,8 @@ start http://localhost:8080
 ---
 
 ## 📝 License
-Personal use only — Tanvir Ahammad Emon.
+**STRICTLY PRIVATE AND CONFIDENTIAL.**
+
+This repository, its source code, assets, and documentation are the exclusive property of Tanvir Ahammad Emon.
+No one else is permitted to view, copy, distribute, or use this repository. 
+All rights reserved.
