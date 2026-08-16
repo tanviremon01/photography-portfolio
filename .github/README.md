@@ -15,5 +15,12 @@ This project is a dynamic, high-performance photography portfolio built to showc
 - **Mobile Optimized:** Preloads critical assets to break the fetch waterfall, ensuring near-instant mobile load times.
 - **Interactive UI:** Features scroll animations, a reading progress bar, count-up statistics, and dynamic glassmorphism hover effects.
 
+## 🔒 Admin Panel Key Features
+The portfolio includes a hidden, password-protected dashboard allowing content management without touching code.
+- **Live Editing:** Add, edit, or delete photos, awards, services, and testimonials directly.
+- **Photo Staging System:** Select multiple files sequentially, preview them in a staging tray, and upload in a single batch.
+- **Client-Side Compression:** Photos are automatically compressed in the browser before upload to save bandwidth.
+- **Seamless Integrations:** Commits changes and images directly to GitHub to trigger automatic deployments.
+
 ---
 *© Tanvir Ahammad Emon. All rights reserved.*
