@@ -601,20 +601,29 @@
             updateLoadMore();
         }
 
+        let loadMoreTimeouts = [];
+
         function updateLoadMore() {
+            loadMoreTimeouts.forEach(clearTimeout);
+            loadMoreTimeouts = [];
+
             const remaining = filteredPhotos.length - galleryVisibleCount;
             if (!DOM.loadMoreWrap) return;
 
             /* Remove old "all loaded" message if present */
-            const old = DOM.loadMoreWrap.querySelector('.gallery-all-loaded');
-            if (old) old.remove();
+            DOM.loadMoreWrap.querySelectorAll('.gallery-all-loaded').forEach(el => el.remove());
 
             if (remaining <= 0) {
                 hideLoadMore();
             } else {
                 DOM.loadMoreWrap.classList.remove('hidden');
+                if (DOM.loadMoreBtn) {
+                    DOM.loadMoreBtn.style.display = ''; // restore button
+                }
+                
                 /* Animate in slightly after cards appear */
-                setTimeout(() => DOM.loadMoreWrap.classList.add('visible'), 200);
+                loadMoreTimeouts.push(setTimeout(() => DOM.loadMoreWrap.classList.add('visible'), 200));
+                
                 if (DOM.loadMoreCount) {
                     const prev = DOM.loadMoreCount.textContent;
                     DOM.loadMoreCount.textContent = `+${remaining}`;
@@ -631,26 +640,31 @@
         function hideLoadMore() {
             if (!DOM.loadMoreWrap) return;
             DOM.loadMoreWrap.classList.remove('visible');
+            
             /* After fade out, replace button with "All photos loaded" text */
-            setTimeout(() => {
+            loadMoreTimeouts.push(setTimeout(() => {
                 DOM.loadMoreWrap.classList.add('hidden');
+                if (DOM.loadMoreBtn) {
+                    DOM.loadMoreBtn.style.display = 'none'; // hide button instead of deleting it
+                }
+                
                 /* Show completion message */
                 const msg = document.createElement('div');
                 msg.className = 'gallery-all-loaded';
                 msg.textContent = 'All photos loaded';
                 DOM.loadMoreWrap.classList.remove('hidden');
-                DOM.loadMoreWrap.innerHTML = '';
                 DOM.loadMoreWrap.appendChild(msg);
                 DOM.loadMoreWrap.classList.add('visible');
+                
                 /* Auto-hide after 2.5 seconds */
-                setTimeout(() => {
+                loadMoreTimeouts.push(setTimeout(() => {
                     DOM.loadMoreWrap.classList.remove('visible');
-                    setTimeout(() => {
+                    loadMoreTimeouts.push(setTimeout(() => {
                         DOM.loadMoreWrap.classList.add('hidden');
-                        DOM.loadMoreWrap.innerHTML = '';
-                    }, 400);
-                }, 2500);
-            }, 400);
+                        msg.remove(); // only remove the message, button remains hidden
+                    }, 400));
+                }, 2500));
+            }, 400));
         }
 
         /* Wire the button (idempotent — only attaches once) */
