@@ -109,11 +109,29 @@
         <!-- Load More button -->
         <div class="gallery-load-more-wrap" id="gallery-load-more-wrap">
             <button class="gallery-load-more-btn" id="gallery-load-more-btn" aria-label="Load more photos">
-                <span class="load-more-label">Load More</span>
-                <span class="load-more-count" id="load-more-count"></span>
-                <svg class="load-more-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
+                <!-- Animated rotating border -->
+                <span class="lm-border-ring"></span>
+                <!-- Shimmer sweep -->
+                <span class="lm-shimmer"></span>
+                <!-- Content -->
+                <span class="lm-inner">
+                    <span class="lm-icon-wrap">
+                        <svg class="lm-icon lm-icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <polyline points="19 12 12 19 5 12"></polyline>
+                        </svg>
+                        <svg class="lm-icon lm-icon-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="9" stroke-dasharray="56" stroke-dashoffset="14" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                    <span class="lm-text">
+                        <span class="lm-label">Load More</span>
+                        <span class="lm-loading-label">Loading</span>
+                    </span>
+                    <span class="lm-badge" id="load-more-count"></span>
+                </span>
+                <!-- Ripple container -->
+                <span class="lm-ripple-container"></span>
             </button>
         </div>
     </section>

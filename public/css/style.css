@@ -814,99 +814,280 @@ ul {
     line-height: 1.5;
 }
 
-/* Load More button */
+/* -----------------------------------------------------------------------
+   Load More — Premium Animated Button
+   ----------------------------------------------------------------------- */
+
+/* Keyframes */
+@keyframes lm-ring-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes lm-shimmer-sweep {
+    0%   { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(250%) skewX(-15deg); }
+}
+@keyframes lm-badge-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.35); }
+    70%  { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+@keyframes lm-spinner {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes lm-icon-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(4px); }
+}
+@keyframes lm-ripple {
+    0%   { transform: scale(0); opacity: 0.5; }
+    100% { transform: scale(4); opacity: 0; }
+}
+@keyframes lm-wrap-in {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Wrapper */
 .gallery-load-more-wrap {
     display: flex;
-    justify-content: center;
-    padding: 2.5rem 0 1rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 3rem 1rem 1.5rem;
     opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.gallery-load-more-wrap.visible {
+    animation: lm-wrap-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    pointer-events: auto;
+}
+.gallery-load-more-wrap.hidden {
+    display: none;
+}
+
+/* Main button shell */
+.gallery-load-more-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 100px;
+    /* reserve space for the rotating ring */
+    padding: 3px;
+}
+.gallery-load-more-btn:focus-visible .lm-inner {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+}
+
+/* Rotating gradient ring (the border) */
+.lm-border-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg 200deg,
+        var(--color-accent) 200deg 260deg,
+        var(--color-accent-light) 260deg 280deg,
+        transparent 280deg 360deg
+    );
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: lm-ring-spin 3s linear infinite;
+    transition: opacity 0.3s ease;
+    opacity: 0.6;
+}
+.gallery-load-more-btn:hover .lm-border-ring {
+    opacity: 1;
+    animation-duration: 1.4s;
+}
+
+/* Shimmer sweep on hover */
+.lm-shimmer {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+}
+.lm-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(201, 168, 76, 0.18),
+        transparent
+    );
+    transform: translateX(-100%) skewX(-15deg);
+}
+.gallery-load-more-btn:hover .lm-shimmer::after {
+    animation: lm-shimmer-sweep 0.65s ease forwards;
+}
+
+/* Inner pill — the visible face */
+.lm-inner {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.8rem 1.8rem 0.8rem 1.4rem;
+    background: var(--color-bg-card);
+    border-radius: 100px;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--color-text-primary);
+    transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+    overflow: hidden;
+}
+.gallery-load-more-btn:hover .lm-inner {
+    background: var(--color-bg-tertiary);
+    color: var(--color-accent-light);
+    transform: scale(1.02);
+}
+.gallery-load-more-btn:active .lm-inner {
+    transform: scale(0.97);
+}
+
+/* Icon wrapper — stacks arrow + spinner */
+.lm-icon-wrap {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+.lm-icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.lm-icon-arrow {
+    opacity: 1;
+    transform: translateY(0);
+}
+.gallery-load-more-btn:hover .lm-icon-arrow {
+    animation: lm-icon-bob 0.9s ease infinite;
+}
+.lm-icon-spin {
+    opacity: 0;
+    transform: scale(0.6);
+    animation: lm-spinner 0.8s linear infinite;
+}
+/* Loading state */
+.gallery-load-more-btn.loading .lm-icon-arrow { opacity: 0; transform: scale(0.4); }
+.gallery-load-more-btn.loading .lm-icon-spin  { opacity: 1; transform: scale(1); }
+
+/* Text — slides between "Load More" and "Loading..." */
+.lm-text {
+    position: relative;
+    height: 1.2em;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.lm-label,
+.lm-loading-label {
+    display: block;
+    line-height: 1.2;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity  0.3s ease;
+}
+.lm-label          { transform: translateY(0);    opacity: 1; }
+.lm-loading-label  { transform: translateY(100%); opacity: 0; position: absolute; top: 0; left: 0; }
+
+.gallery-load-more-btn.loading .lm-label         { transform: translateY(-100%); opacity: 0; }
+.gallery-load-more-btn.loading .lm-loading-label { transform: translateY(0);    opacity: 1; }
+
+/* Badge */
+.lm-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.8rem;
+    height: 1.5rem;
+    padding: 0 0.45rem;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
+    color: #0a0a0b;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.lm-badge:empty { display: none; }
+.lm-badge.pop {
+    animation: lm-badge-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Ripple */
+.lm-ripple-container {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+}
+.lm-ripple {
+    position: absolute;
+    border-radius: 50%;
+    width: 60px; height: 60px;
+    margin-top: -30px; margin-left: -30px;
+    background: radial-gradient(circle, var(--color-accent-light) 0%, transparent 70%);
+    animation: lm-ripple 0.55s ease-out forwards;
     pointer-events: none;
 }
 
-.gallery-load-more-wrap.visible {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-}
-
-.gallery-load-more-btn {
-    display: inline-flex;
+/* "All loaded" caption that fades in when button hides */
+.gallery-all-loaded {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.85rem 2.2rem;
-    background: transparent;
-    border: 1.5px solid var(--color-border);
-    color: var(--color-text);
-    border-radius: 100px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    font-family: var(--font-sans);
-    position: relative;
-    overflow: hidden;
-}
-
-.gallery-load-more-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--color-accent);
     opacity: 0;
-    transition: opacity 0.25s ease;
-    border-radius: inherit;
+    animation: lm-wrap-in 0.6s 0.1s ease forwards;
+}
+.gallery-all-loaded::before,
+.gallery-all-loaded::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    width: 60px;
+    background: linear-gradient(90deg, transparent, var(--color-border));
+}
+.gallery-all-loaded::after {
+    background: linear-gradient(90deg, var(--color-border), transparent);
 }
 
-.gallery-load-more-btn:hover {
-    border-color: var(--color-accent);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(var(--accent-rgb, 124,58,237), 0.3);
-}
-
-.gallery-load-more-btn:hover::before {
-    opacity: 1;
-}
-
-.gallery-load-more-btn:active {
-    transform: translateY(0);
-}
-
-.gallery-load-more-btn span,
-.gallery-load-more-btn svg {
-    position: relative;
-    z-index: 1;
-}
-
-.load-more-count {
-    font-size: 0.8rem;
-    opacity: 0.65;
-    background: var(--color-bg-secondary);
-    padding: 0.15rem 0.55rem;
-    border-radius: 100px;
-    transition: background 0.25s ease;
-}
-
-.gallery-load-more-btn:hover .load-more-count {
-    background: rgba(255,255,255,0.2);
-}
-
-.load-more-icon {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.3s ease;
-}
-
-.gallery-load-more-btn:hover .load-more-icon {
-    transform: translateY(2px);
-}
-
-/* When all photos are loaded — hide the button */
-.gallery-load-more-wrap.hidden {
-    display: none;
+/* Responsive */
+@media (max-width: 480px) {
+    .lm-inner { padding: 0.75rem 1.4rem 0.75rem 1.1rem; font-size: 0.85rem; }
+    .gallery-load-more-wrap { padding: 2rem 1rem 1rem; }
 }
 
 

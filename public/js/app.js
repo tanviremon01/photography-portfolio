@@ -604,29 +604,84 @@
         function updateLoadMore() {
             const remaining = filteredPhotos.length - galleryVisibleCount;
             if (!DOM.loadMoreWrap) return;
+
+            /* Remove old "all loaded" message if present */
+            const old = DOM.loadMoreWrap.querySelector('.gallery-all-loaded');
+            if (old) old.remove();
+
             if (remaining <= 0) {
                 hideLoadMore();
             } else {
                 DOM.loadMoreWrap.classList.remove('hidden');
-                /* slight delay so it animates in after the cards */
+                /* Animate in slightly after cards appear */
                 setTimeout(() => DOM.loadMoreWrap.classList.add('visible'), 200);
-                if (DOM.loadMoreCount) DOM.loadMoreCount.textContent = `+${remaining}`;
+                if (DOM.loadMoreCount) {
+                    const prev = DOM.loadMoreCount.textContent;
+                    DOM.loadMoreCount.textContent = `+${remaining}`;
+                    /* Pop badge when count changes */
+                    if (prev !== `+${remaining}`) {
+                        DOM.loadMoreCount.classList.remove('pop');
+                        void DOM.loadMoreCount.offsetWidth; /* reflow */
+                        DOM.loadMoreCount.classList.add('pop');
+                    }
+                }
             }
         }
 
         function hideLoadMore() {
             if (!DOM.loadMoreWrap) return;
             DOM.loadMoreWrap.classList.remove('visible');
-            setTimeout(() => DOM.loadMoreWrap.classList.add('hidden'), 400);
+            /* After fade out, replace button with "All photos loaded" text */
+            setTimeout(() => {
+                DOM.loadMoreWrap.classList.add('hidden');
+                /* Show completion message */
+                const msg = document.createElement('div');
+                msg.className = 'gallery-all-loaded';
+                msg.textContent = 'All photos loaded';
+                DOM.loadMoreWrap.classList.remove('hidden');
+                DOM.loadMoreWrap.innerHTML = '';
+                DOM.loadMoreWrap.appendChild(msg);
+                DOM.loadMoreWrap.classList.add('visible');
+                /* Auto-hide after 2.5 seconds */
+                setTimeout(() => {
+                    DOM.loadMoreWrap.classList.remove('visible');
+                    setTimeout(() => {
+                        DOM.loadMoreWrap.classList.add('hidden');
+                        DOM.loadMoreWrap.innerHTML = '';
+                    }, 400);
+                }, 2500);
+            }, 400);
         }
 
         /* Wire the button (idempotent — only attaches once) */
         if (DOM.loadMoreBtn && !DOM.loadMoreBtn._wired) {
             DOM.loadMoreBtn._wired = true;
-            DOM.loadMoreBtn.addEventListener('click', () => {
+            DOM.loadMoreBtn.addEventListener('click', (e) => {
+                /* Ripple effect */
+                const rippleContainer = DOM.loadMoreBtn.querySelector('.lm-ripple-container');
+                if (rippleContainer) {
+                    const rect = DOM.loadMoreBtn.getBoundingClientRect();
+                    const ripple = document.createElement('span');
+                    ripple.className = 'lm-ripple';
+                    ripple.style.top  = (e.clientY - rect.top)  + 'px';
+                    ripple.style.left = (e.clientX - rect.left) + 'px';
+                    rippleContainer.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                }
+
+                /* Loading state */
+                DOM.loadMoreBtn.classList.add('loading');
+                DOM.loadMoreBtn.disabled = true;
+
                 const start = galleryVisibleCount;
                 galleryVisibleCount += GALLERY_PAGE_SIZE;
-                buildCards(start, /* appendMode= */ true);
+
+                /* Short delay so loading animation is visible */
+                setTimeout(() => {
+                    buildCards(start, /* appendMode= */ true);
+                    DOM.loadMoreBtn.classList.remove('loading');
+                    DOM.loadMoreBtn.disabled = false;
+                }, 320);
             });
         }
 
