@@ -330,7 +330,10 @@
             "title": "YPPB Best Photographer of The Year- Gold Medel",
             "organization": "Young Photographer Panel Bangladesh",
             "year": 2020,
-            "description": "Awarded Best Photographer of the Year by Young Photographer Panel Bangladesh."
+            "description": "Awarded Best Photographer of the Year by Young Photographer Panel Bangladesh.",
+            "photos": [
+                "/images/awards/IMG_20211216_181226.jpg"
+            ]
         }
     ],
     "services": [
