@@ -824,7 +824,15 @@
     function setupSmoothScroll() {
         document.querySelectorAll('a[href^="#"]').forEach((link) => {
             link.addEventListener('click', (e) => {
-                const target = document.querySelector(link.getAttribute('href'));
+                const href = link.getAttribute('href');
+                const target = document.querySelector(href);
+                
+                /* Reset gallery if the user navigates back to it via the nav link */
+                if (href === '#gallery' && galleryVisibleCount > GALLERY_PAGE_SIZE) {
+                    galleryVisibleCount = GALLERY_PAGE_SIZE;
+                    renderGallery(false); /* instant reset to 6 photos */
+                }
+
                 if (target) {
                     e.preventDefault();
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
