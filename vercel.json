@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cp src/portfolio_data.json public/portfolio_data.json",
+  "buildCommand": "cp data/portfolio_data.json public/portfolio_data.json",
   "outputDirectory": "public",
   "rewrites": [
     {

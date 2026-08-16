@@ -102,9 +102,9 @@
         if (forgotLink) {
             forgotLink.addEventListener('click', async (e) => {
                 e.preventDefault();
-                if (!IS_LOCAL) {
+                if (window.IS_STATIC_HOSTING) {
                     $('#login-error').style.color = 'var(--blue)';
-                    $('#login-error').textContent = 'Live mode: Use password "tanvir2026". (Email reset only works on local server).';
+                    $('#login-error').textContent = 'Live static mode: Email reset is not available without a backend server.';
                     return;
                 }
 
@@ -116,6 +116,9 @@
                     if (res.ok) {
                         $('#login-error').style.color = 'var(--green)';
                         $('#login-error').textContent = 'Reset email sent! Check your inbox.';
+                    } else if (res.status === 404 || res.status === 405) {
+                        window.IS_STATIC_HOSTING = true;
+                        throw new Error('Static hosting detected. Email reset not available.');
                     } else {
                         throw new Error(data.error || 'Failed to send reset email');
                     }
@@ -131,11 +134,15 @@
 
     async function verifyToken() {
         try {
-            if (!IS_LOCAL) {
-                // Vercel static hosting has no backend.
-                // The actual security is the GitHub PAT entered later.
-                // This is just a layout lock to prevent randoms from seeing the UI.
-                if (token === 'tanvir2026') {
+            const res = await fetch(VERIFY_URL, {
+                method: 'POST',
+                headers: { 'X-Admin-Token': token }
+            });
+            
+            if (res.status === 404 || res.status === 405) {
+                // Backend not found (e.g. Vercel static hosting)
+                window.IS_STATIC_HOSTING = true;
+                if (token.length >= 4) {
                     sessionStorage.setItem('adminToken', token);
                     showAdmin();
                     return;
@@ -143,12 +150,11 @@
                 throw new Error('Invalid');
             }
 
-            const res = await fetch(VERIFY_URL, {
-                method: 'POST',
-                headers: { 'X-Admin-Token': token }
-            });
             if (res.ok) {
+                const data = await res.json();
+                if (data.session_token) token = data.session_token;
                 sessionStorage.setItem('adminToken', token);
+                window.IS_STATIC_HOSTING = false;
                 showAdmin();
             } else {
                 throw new Error('Invalid');
@@ -202,7 +208,7 @@
     }
 
     async function saveData() {
-        if (!IS_LOCAL) {
+        if (window.IS_STATIC_HOSTING) {
             return await saveDataViaGitHub();
         }
         try {
@@ -214,6 +220,10 @@
                 },
                 body: JSON.stringify(data, null, 4)
             });
+            if (res.status === 404 || res.status === 405) {
+                window.IS_STATIC_HOSTING = true;
+                return await saveDataViaGitHub();
+            }
             if (!res.ok) throw new Error('Save failed');
             return true;
         } catch (err) {
@@ -299,7 +309,7 @@
         // Compress the image dynamically before uploading
         const compressedFile = await compressImage(file);
 
-        if (!IS_LOCAL) {
+        if (window.IS_STATIC_HOSTING) {
             return await uploadFileViaGitHub(compressedFile, cleanName, folder);
         }
 
@@ -377,7 +387,7 @@
             const json = JSON.stringify(data, null, 4);
             const base64 = btoa(unescape(encodeURIComponent(json)));
             await githubCommitFile(
-                'src/portfolio_data.json',
+                'data/portfolio_data.json',
                 base64,
                 'admin: update portfolio data'
             );

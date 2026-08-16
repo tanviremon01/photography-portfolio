@@ -1,0 +1,13 @@
+# Caddyfile
+# This configuration puts the C server behind an HTTPS reverse proxy.
+# Caddy automatically provisions TLS certificates for your domain.
+
+# Replace yourdomain.com with your actual domain
+# yourdomain.com {
+#     reverse_proxy localhost:8080
+# }
+
+# For local development with HTTPS:
+localhost {
+    reverse_proxy localhost:8080
+}
