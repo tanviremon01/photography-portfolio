@@ -163,7 +163,7 @@ void handle_admin_change_password(SOCKET sock, const char *body, long body_size)
     }
     
     char new_pass[128] = {0};
-    size_t to_copy = body_size < sizeof(new_pass) - 1 ? (size_t)body_size : sizeof(new_pass) - 1;
+    size_t to_copy = (size_t)body_size < sizeof(new_pass) - 1 ? (size_t)body_size : sizeof(new_pass) - 1;
     memcpy(new_pass, body, to_copy);
     
     /* Remove surrounding quotes if sent as a JSON string literal */

@@ -7,6 +7,33 @@
 #include <string.h>
 
 /* -----------------------------------------------------------------------
+ * Helper: return the appropriate Cache-Control directive for a given
+ * file extension.
+ *
+ *  - Images / fonts : 1 year, immutable (content-addressed by filename)
+ *  - CSS / JS       : 1 day  (frequently updated during development)
+ *  - Everything else: no-cache (HTML, JSON, text)
+ * ----------------------------------------------------------------------- */
+static const char *cache_control_for_ext(const char *ext) {
+    if (!ext) return "no-cache";
+    /* Images */
+    if (_stricmp(ext, ".jpg")  == 0 || _stricmp(ext, ".jpeg") == 0 ||
+        _stricmp(ext, ".webp") == 0 || _stricmp(ext, ".png")  == 0 ||
+        _stricmp(ext, ".gif")  == 0 || _stricmp(ext, ".svg")  == 0 ||
+        _stricmp(ext, ".ico")  == 0)
+        return "public, max-age=31536000, immutable";
+    /* Fonts */
+    if (_stricmp(ext, ".woff")  == 0 || _stricmp(ext, ".woff2") == 0 ||
+        _stricmp(ext, ".ttf")   == 0)
+        return "public, max-age=31536000, immutable";
+    /* CSS / JS */
+    if (_stricmp(ext, ".css") == 0 || _stricmp(ext, ".js") == 0)
+        return "public, max-age=86400";
+    /* HTML and everything else */
+    return "no-cache";
+}
+
+/* -----------------------------------------------------------------------
  * Base directory for static files, relative to the executable.
  * All static file requests are resolved under this path.
  * ----------------------------------------------------------------------- */
@@ -194,9 +221,10 @@ static void serve_static_file(SOCKET client_socket, const char *url_path) {
     fread(file_data, 1, (size_t)file_size, fp);
     fclose(fp);
 
-    /* Determine MIME type from file extension */
+    /* Determine MIME type and cache policy from file extension */
     const char *ext = strrchr(url_path, '.');
-    const char *mime = get_mime_type(ext);
+    const char *mime        = get_mime_type(ext);
+    const char *cache_ctrl  = cache_control_for_ext(ext);
 
     /* Send HTTP headers */
     char header[512];
@@ -204,10 +232,10 @@ static void serve_static_file(SOCKET client_socket, const char *url_path) {
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: %s\r\n"
         "Content-Length: %ld\r\n"
-        "Cache-Control: no-cache\r\n"
+        "Cache-Control: %s\r\n"
         "Connection: close\r\n"
         "\r\n",
-        mime, file_size);
+        mime, file_size, cache_ctrl);
     send(client_socket, header, header_len, 0);
 
     /* Send file body in chunks */
@@ -268,7 +296,7 @@ void route_request(SOCKET client_socket, const char *request, int request_len) {
     /* ---- GET Routes ---- */
     if (_stricmp(method, "GET") == 0) {
         if (strcmp(path, "/api/portfolio") == 0) {
-            handle_api_portfolio(client_socket, query_string);
+            handle_api_portfolio(client_socket, query_string, request);
             return;
         }
         /* All other GET requests serve static files */

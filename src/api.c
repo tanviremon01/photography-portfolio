@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <zlib.h>
 
 /* -----------------------------------------------------------------------
  * Path to the portfolio data JSON file (relative to the executable).
@@ -54,6 +55,62 @@ static char *read_file_contents(const char *path, long *out_size) {
     if (out_size) *out_size = (long)read_count;
 
     return buffer;
+}
+
+/* -----------------------------------------------------------------------
+ * Helper: gzip-compress src_len bytes from src into a newly malloc'd
+ * buffer.  Returns the compressed buffer and writes its size to *out_len.
+ * Returns NULL on failure (caller sends uncompressed in that case).
+ * ----------------------------------------------------------------------- */
+static unsigned char *gzip_compress(const char *src, size_t src_len,
+                                    size_t *out_len) {
+    /* Upper bound for gzip output: src + gzip headers/trailers */
+    uLong bound   = compressBound((uLong)src_len) + 32;
+    unsigned char *dst = (unsigned char *)malloc(bound);
+    if (!dst) return NULL;
+
+    z_stream zs;
+    memset(&zs, 0, sizeof(zs));
+    /* windowBits = 15 + 16 → gzip wrapper (not zlib) */
+    if (deflateInit2(&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
+                     15 + 16, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
+        free(dst);
+        return NULL;
+    }
+
+    zs.next_in  = (Bytef *)src;
+    zs.avail_in = (uInt)src_len;
+    zs.next_out  = dst;
+    zs.avail_out = (uInt)bound;
+
+    if (deflate(&zs, Z_FINISH) != Z_STREAM_END) {
+        deflateEnd(&zs);
+        free(dst);
+        return NULL;
+    }
+
+    *out_len = (size_t)zs.total_out;
+    deflateEnd(&zs);
+    return dst;
+}
+
+/* -----------------------------------------------------------------------
+ * Helper: check whether the client sent "Accept-Encoding: gzip".
+ * ----------------------------------------------------------------------- */
+static int client_accepts_gzip(const char *request) {
+    if (!request) return 0;
+    /* Case-insensitive search for "gzip" inside the Accept-Encoding header */
+    const char *hdr = strstr(request, "Accept-Encoding:");
+    if (!hdr) hdr  = strstr(request, "accept-encoding:");
+    if (!hdr) return 0;
+    /* Only scan until end of that header line */
+    const char *eol = strstr(hdr, "\r\n");
+    size_t len = eol ? (size_t)(eol - hdr) : strlen(hdr);
+    /* strnstr equivalent: manual search */
+    for (size_t i = 0; i + 4 <= len; i++) {
+        if (_strnicmp(hdr + i, "gzip", 4) == 0) return 1;
+    }
+    return 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -193,7 +250,8 @@ static char *filter_by_category(const char *json, const char *category) {
 /* -----------------------------------------------------------------------
  * Main API handler: reads the JSON file, optionally filters, and responds.
  * ----------------------------------------------------------------------- */
-void handle_api_portfolio(SOCKET client_socket, const char *query_string) {
+void handle_api_portfolio(SOCKET client_socket, const char *query_string,
+                          const char *request) {
     long json_size = 0;
     char *json_data = read_file_contents(PORTFOLIO_JSON_PATH, &json_size);
 
@@ -219,24 +277,53 @@ void handle_api_portfolio(SOCKET client_socket, const char *query_string) {
         }
     }
 
-    /* Build HTTP response */
+    /* Build HTTP response — gzip if client supports it */
     size_t body_len = strlen(response_body);
-    char header[512];
-    int header_len = snprintf(header, sizeof(header),
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: application/json; charset=utf-8\r\n"
-        "Access-Control-Allow-Origin: *\r\n"
-        "Cache-Control: no-cache\r\n"
-        "Content-Length: %zu\r\n"
-        "Connection: close\r\n"
-        "\r\n",
-        body_len);
+    int use_gzip = client_accepts_gzip(request);
 
-    send(client_socket, header, header_len, 0);
-    send(client_socket, response_body, (int)body_len, 0);
+    unsigned char *compressed   = NULL;
+    size_t        compressed_len = 0;
+
+    if (use_gzip) {
+        compressed = gzip_compress(response_body, body_len, &compressed_len);
+        if (!compressed) use_gzip = 0; /* fall back to plain */
+    }
+
+    char header[600];
+    int  header_len;
+
+    if (use_gzip) {
+        header_len = snprintf(header, sizeof(header),
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: application/json; charset=utf-8\r\n"
+            "Access-Control-Allow-Origin: *\r\n"
+            "Cache-Control: no-cache\r\n"
+            "Content-Encoding: gzip\r\n"
+            "Vary: Accept-Encoding\r\n"
+            "Content-Length: %zu\r\n"
+            "Connection: close\r\n"
+            "\r\n",
+            compressed_len);
+        send(client_socket, header, header_len, 0);
+        send(client_socket, (const char *)compressed, (int)compressed_len, 0);
+    } else {
+        header_len = snprintf(header, sizeof(header),
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: application/json; charset=utf-8\r\n"
+            "Access-Control-Allow-Origin: *\r\n"
+            "Cache-Control: no-cache\r\n"
+            "Vary: Accept-Encoding\r\n"
+            "Content-Length: %zu\r\n"
+            "Connection: close\r\n"
+            "\r\n",
+            body_len);
+        send(client_socket, header, header_len, 0);
+        send(client_socket, response_body, (int)body_len, 0);
+    }
 
     /* Cleanup */
-    if (filtered) free(filtered);
-    if (json_data) free(json_data);
+    if (compressed) free(compressed);
+    if (filtered)   free(filtered);
+    if (json_data)  free(json_data);
     (void)need_free_body;
 }

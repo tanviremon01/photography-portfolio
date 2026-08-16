@@ -234,7 +234,7 @@
             card.innerHTML = `
                 <img src="${escapeHtml(photo.url)}"
                      alt="${escapeHtml(photo.title)}"
-                     loading="lazy" draggable="false">
+                     loading="lazy" decoding="async" draggable="false">
                 <div class="highlight-overlay">
                     <span class="highlight-category">${escapeHtml(categoryText)}</span>
                     <h4 class="highlight-title">${escapeHtml(photo.title)}</h4>
@@ -543,6 +543,7 @@
                     <img src="${escapeHtml(photo.thumbnail || photo.url)}"
                          alt="${escapeHtml(photo.title)}"
                          loading="lazy"
+                         decoding="async"
                          draggable="false">
                     <div class="photo-card-overlay">
                         <span class="photo-card-category">${escapeHtml(Array.isArray(photo.category) ? photo.category.join(', ') : photo.category)}</span>
