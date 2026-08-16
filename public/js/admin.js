@@ -1301,30 +1301,104 @@
             const btn = e.target.closest('[data-action]');
             if (!btn) return;
             const idx = parseInt(btn.dataset.index);
+
             if (btn.dataset.action === 'add') {
-                showModal('Add Award', awardFormHtml({}), async () => {
-                    if (!data.awards) data.awards = [];
-                    data.awards.push(readAwardForm());
-                    if (await saveData()) { showToast('Award added!', 'success'); renderDataContent(); renderDashboard(); }
+                let currentPhotos = [];
+                showModal('Add Award', awardFormHtml({ photos: currentPhotos }), async () => {
+                    await handleAwardSave(null, currentPhotos);
                 });
+                bindAwardPhotoRemovers(currentPhotos);
+
             } else if (btn.dataset.action === 'edit') {
-                showModal('Edit Award', awardFormHtml(awards[idx]), async () => {
-                    Object.assign(awards[idx], readAwardForm());
-                    if (await saveData()) { showToast('Award updated!', 'success'); renderDataContent(); }
+                let currentPhotos = [...(awards[idx].photos || [])];
+                showModal('Edit Award', awardFormHtml({ ...awards[idx], photos: currentPhotos }), async () => {
+                    await handleAwardSave(awards[idx], currentPhotos);
                 });
+                bindAwardPhotoRemovers(currentPhotos);
+
             } else if (btn.dataset.action === 'delete') {
                 data.awards.splice(idx, 1);
                 saveData().then(ok => { if (ok) { showToast('Award removed', 'success'); renderDataContent(); renderDashboard(); } });
             }
         };
+
+        async function handleAwardSave(awardObj, currentPhotos) {
+            const confirmBtn = $('#modal-confirm');
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Uploading...';
+
+            try {
+                // Upload new photos if any
+                const fileInput = $('#award-photos');
+                if (fileInput && fileInput.files.length > 0) {
+                    for (let i = 0; i < fileInput.files.length; i++) {
+                        const file = fileInput.files[i];
+                        const res = await uploadFile(file, file.name, 'awards');
+                        currentPhotos.push(res.url);
+                    }
+                }
+
+                const newAwardData = readAwardForm();
+                newAwardData.photos = currentPhotos;
+
+                if (!data.awards) data.awards = [];
+                if (awardObj) {
+                    Object.assign(awardObj, newAwardData);
+                } else {
+                    data.awards.push(newAwardData);
+                }
+
+                if (await saveData()) {
+                    showToast(awardObj ? 'Award updated!' : 'Award added!', 'success');
+                    renderDataContent();
+                    if (!awardObj) renderDashboard();
+                }
+            } catch (err) {
+                showToast('Failed to save award: ' + err.message, 'error');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Retry';
+                // Throw to prevent modal from closing
+                throw err;
+            }
+        }
+
+        function bindAwardPhotoRemovers(currentPhotos) {
+            const wrap = $('#award-existing-photos');
+            if (!wrap) return;
+            wrap.onclick = (e) => {
+                const removeBtn = e.target.closest('.btn-remove-photo');
+                if (removeBtn) {
+                    const i = parseInt(removeBtn.dataset.idx);
+                    currentPhotos.splice(i, 1);
+                    removeBtn.parentElement.remove();
+                    // update indices of remaining buttons so they don't break
+                    wrap.querySelectorAll('.btn-remove-photo').forEach((b, newIdx) => b.dataset.idx = newIdx);
+                }
+            };
+        }
     }
 
     function awardFormHtml(a) {
+        const photosHtml = (a.photos || []).map((p, i) => `
+            <div class="award-photo-thumb" style="position:relative; width: 60px; height: 60px; border-radius: 4px; overflow: hidden; background: #222;">
+                <img src="${escapeHtml(p)}" style="width:100%; height:100%; object-fit:cover;">
+                <button type="button" class="btn-remove-photo" data-idx="${i}" style="position:absolute; top:4px; right:4px; background:rgba(255,0,0,0.8); color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+            </div>
+        `).join('');
+
         return `
             <div class="form-group"><label>Title</label><input class="text-input" id="award-title" value="${escapeHtml(a.title || '')}"></div>
             <div class="form-group"><label>Organization</label><input class="text-input" id="award-org" value="${escapeHtml(a.organization || '')}"></div>
             <div class="form-group"><label>Year</label><input type="number" class="text-input" id="award-year" value="${a.year || new Date().getFullYear()}"></div>
-            <div class="form-group"><label>Description</label><textarea class="text-input" id="award-desc" rows="2">${escapeHtml(a.description || '')}</textarea></div>`;
+            <div class="form-group"><label>Description</label><textarea class="text-input" id="award-desc" rows="2">${escapeHtml(a.description || '')}</textarea></div>
+            <div class="form-group">
+                <label>Award Photos</label>
+                <div id="award-existing-photos" style="display:flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                    ${photosHtml}
+                </div>
+                <input type="file" class="text-input" id="award-photos" accept="image/*" multiple>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;">Select new photos to add (they will upload when you click Save).</p>
+            </div>`;
     }
 
     function readAwardForm() {

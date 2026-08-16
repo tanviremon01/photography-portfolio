@@ -1116,6 +1116,34 @@ ul {
     line-height: 1.6;
 }
 
+.award-photos {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.award-photo-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform var(--transition-smooth), border-color var(--transition-smooth);
+}
+
+.award-photo-thumb:hover {
+    transform: scale(1.05);
+    border-color: var(--color-accent);
+}
+
+.award-photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
 
 /* -----------------------------------------------------------------------
    9. ABOUT

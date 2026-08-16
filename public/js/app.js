@@ -285,6 +285,9 @@
     /* -------------------------------------------------------------------
      * AWARDS — Render awards & certificates with glass cards.
      * ------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------
+     * AWARDS — Render awards & certificates with glass cards.
+     * ------------------------------------------------------------------- */
     function renderAwards() {
         if (!portfolioData.awards || !DOM.awardsGrid) return;
 
@@ -296,13 +299,47 @@
             const card = document.createElement('div');
             card.className = 'award-card';
 
+            let photosHtml = '';
+            if (award.photos && award.photos.length > 0) {
+                photosHtml = `
+                    <div class="award-photos">
+                        ${award.photos.map((p, pIdx) => `
+                            <div class="award-photo-thumb" data-idx="${pIdx}">
+                                <img src="${escapeHtml(p)}" loading="lazy">
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
             card.innerHTML = `
                 <span class="award-icon">${trophyIcons[i % trophyIcons.length]}</span>
                 <span class="award-year">${escapeHtml(String(award.year))}</span>
                 <h3 class="award-title">${escapeHtml(award.title)}</h3>
                 <p class="award-org">${escapeHtml(award.organization)}</p>
                 <p class="award-desc">${escapeHtml(award.description)}</p>
+                ${photosHtml}
             `;
+
+            // Wire thumbnails to lightbox
+            if (award.photos && award.photos.length > 0) {
+                const thumbs = card.querySelectorAll('.award-photo-thumb');
+                thumbs.forEach(thumb => {
+                    thumb.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Transform photo urls to match Lightbox expected format
+                        filteredPhotos = award.photos.map((url, idx) => ({
+                            id: idx,
+                            url: url,
+                            thumbnail: url,
+                            title: award.title,
+                            description: award.organization + ' - ' + award.year,
+                            category: ['Award']
+                        }));
+                        openLightbox(parseInt(thumb.dataset.idx));
+                    });
+                });
+            }
 
             DOM.awardsGrid.appendChild(card);
         });
