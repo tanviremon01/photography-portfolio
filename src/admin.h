@@ -12,9 +12,10 @@ int check_admin_auth(const char *request);
 
 /**
  * POST /api/admin/verify
- * Returns 200 if the auth token is valid (checked before calling this).
+ * Verifies the submitted password via auth.py and issues a session token.
+ * Applies per-IP rate limiting.
  */
-void handle_admin_verify(SOCKET client_socket);
+void handle_admin_verify(SOCKET client_socket, const char *request, const char *client_ip);
 
 /**
  * POST /api/admin/password

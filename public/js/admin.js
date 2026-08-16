@@ -141,13 +141,21 @@
             
             if (res.status === 404 || res.status === 405) {
                 // Backend not found (Vercel static hosting).
-                // Verify against SHA-256 hash — hash is safe to store in JS; plaintext is not.
+                // Fetch the hash from the served admin_hash.json and compare locally.
                 window.IS_STATIC_HOSTING = true;
-                const STATIC_PASS_HASH = '58de2f79eeabd63dccfb0ace419be3f76ba493f9878647e7b129c2aad4a65bdc';
+                let storedHash = '';
+                try {
+                    const hr = await fetch('/admin_hash.json?_=' + Date.now());
+                    if (hr.ok) {
+                        const hd = await hr.json();
+                        storedHash = hd.sha256 || '';
+                    }
+                } catch (_) { /* network error — deny */ }
+                if (!storedHash) throw new Error('Could not load auth config.');
                 const encoder = new TextEncoder();
                 const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(token));
                 const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-                if (hashHex === STATIC_PASS_HASH) {
+                if (hashHex === storedHash) {
                     sessionStorage.setItem('adminToken', token);
                     showAdmin();
                     return;
@@ -1773,30 +1781,39 @@
                 btn.textContent = 'Saving...';
 
                 try {
-                    const res = await fetch(PASSWORD_URL, {
-                        method: 'POST',
-                        headers: {
-                            'X-Admin-Token': token,
-                            'Content-Type': 'text/plain'
-                        },
-                        body: pass
-                    });
-
-                    const resData = await res.json();
-                    if (res.ok) {
-                        msg.style.color = 'var(--green)';
-                        msg.textContent = 'Password changed successfully! You will need to log in again.';
-                        showToast('Password updated!', 'success');
-
-                        // Log out after a brief delay
-                        setTimeout(() => {
-                            sessionStorage.removeItem('adminToken');
-                            token = '';
-                            window.location.reload();
-                        }, 2000);
+                    if (window.IS_STATIC_HOSTING) {
+                        // Vercel: compute SHA-256 locally, commit admin_hash.json via GitHub
+                        if (!ghOwner || !ghRepo || !ghToken) {
+                            throw new Error('Configure GitHub settings first so the password can be saved to your repo.');
+                        }
+                        const encoder = new TextEncoder();
+                        const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(pass));
+                        const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                        const hashJson = JSON.stringify({ sha256: hashHex }, null, 4);
+                        const base64 = btoa(unescape(encodeURIComponent(hashJson)));
+                        await githubCommitFile('data/admin_hash.json', base64, 'admin: update password hash');
                     } else {
-                        throw new Error(resData.error || 'Failed to change password');
+                        // Local server: send plain password to backend, auth.py hashes it
+                        const res = await fetch(PASSWORD_URL, {
+                            method: 'POST',
+                            headers: {
+                                'X-Admin-Token': token,
+                                'Content-Type': 'text/plain'
+                            },
+                            body: pass
+                        });
+                        const resData = await res.json();
+                        if (!res.ok) throw new Error(resData.error || 'Failed to change password');
                     }
+
+                    msg.style.color = 'var(--green)';
+                    msg.textContent = 'Password changed! You will be logged out.';
+                    showToast('Password updated!', 'success');
+                    setTimeout(() => {
+                        sessionStorage.removeItem('adminToken');
+                        token = '';
+                        window.location.reload();
+                    }, 2000);
                 } catch (err) {
                     msg.style.color = 'var(--red)';
                     msg.textContent = err.message;

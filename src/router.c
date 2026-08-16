@@ -313,16 +313,20 @@ void route_request(SOCKET client_socket, const char *request, int request_len) {
             return;
         }
 
+        /* Verify does its OWN auth — must come before check_admin_auth */
+        if (strcmp(path, "/api/admin/verify") == 0) {
+            struct sockaddr_in ci = {0};
+            int alen = sizeof(ci);
+            getpeername(client_socket, (struct sockaddr*)&ci, &alen);
+            const char *ip = inet_ntoa(ci.sin_addr);
+            handle_admin_verify(client_socket, request, ip ? ip : "0.0.0.0");
+            return;
+        }
+
         /* All other POST routes require admin authentication */
         if (!check_admin_auth(request)) {
             send_error(client_socket, 401, "Unauthorized",
                        "{\"error\":\"Unauthorized\"}");
-            return;
-        }
-
-        /* Verify endpoint doesn't need a body */
-        if (strcmp(path, "/api/admin/verify") == 0) {
-            handle_admin_verify(client_socket);
             return;
         }
 
