@@ -19,4 +19,4 @@ src/admin_pass.txt
 src/email_config.json
 
 # Ignore README
-README.md
+/README.md
