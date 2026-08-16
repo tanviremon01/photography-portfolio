@@ -24,7 +24,7 @@
  * Configuration
  * ----------------------------------------------------------------------- */
 #define ADMIN_PASS_PATH     "src\\admin_pass.txt"
-#define PORTFOLIO_JSON_PATH "src\\portfolio_data.json"
+#define PORTFOLIO_JSON_PATH "data\\portfolio_data.json"
 #define UPLOAD_DIR          "public\\images\\"
 #define MAX_FNAME           256
 

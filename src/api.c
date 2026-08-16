@@ -8,7 +8,7 @@
  * Path to the portfolio data JSON file (relative to the executable).
  * Change this if you move the JSON file to a different location.
  * ----------------------------------------------------------------------- */
-#define PORTFOLIO_JSON_PATH "src\\portfolio_data.json"
+#define PORTFOLIO_JSON_PATH "data\\portfolio_data.json"
 
 /* Maximum size for the JSON file (4 MB should be plenty) */
 #define MAX_JSON_SIZE (4 * 1024 * 1024)
@@ -19,7 +19,7 @@
 static const char *FALLBACK_JSON =
     "{"
     "\"site\":{\"title\":\"Lens & Light\",\"tagline\":\"Portfolio data file not found\","
-    "\"author\":\"Photographer\",\"bio\":\"Please create src/portfolio_data.json\","
+    "\"author\":\"Photographer\",\"bio\":\"Please create data/portfolio_data.json\","
     "\"contact_email\":\"hello@example.com\",\"social\":{\"instagram\":\"#\",\"twitter\":\"#\"}},"
     "\"categories\":[\"All\"],"
     "\"photos\":[]"
@@ -55,6 +55,69 @@ static char *read_file_contents(const char *path, long *out_size) {
     if (out_size) *out_size = (long)read_count;
 
     return buffer;
+}
+
+/* -----------------------------------------------------------------------
+ * Schema validator — called once at server startup.
+ *
+ * Checks that portfolio_data.json:
+ *   1. Can be read and parsed (file exists, not empty)
+ *   2. Contains the required top-level keys: "site", "photos", "categories"
+ *   3. "photos" value starts with '[' (is an array)
+ *
+ * Prints a clear [WARN] message for each problem found so the developer
+ * knows immediately without waiting for a browser request to fail.
+ *
+ * Returns 1 if the file is valid, 0 if any check fails.
+ * ----------------------------------------------------------------------- */
+int validate_portfolio_json(void) {
+    long size = 0;
+    char *json = read_file_contents(PORTFOLIO_JSON_PATH, &size);
+
+    if (!json) {
+        fprintf(stderr,
+            "[WARN] schema: Cannot open '%s'. "
+            "Portfolio API will use fallback data.\n",
+            PORTFOLIO_JSON_PATH);
+        return 0;
+    }
+
+    int ok = 1;
+
+    /* Required top-level keys */
+    const char *required[] = { "\"site\"", "\"photos\"", "\"categories\"" };
+    const char *labels[]   = { "site",    "photos",     "categories" };
+    for (int i = 0; i < 3; i++) {
+        if (!strstr(json, required[i])) {
+            fprintf(stderr,
+                "[WARN] schema: Missing required key '%s' in '%s'.\n",
+                labels[i], PORTFOLIO_JSON_PATH);
+            ok = 0;
+        }
+    }
+
+    /* "photos" must be an array */
+    const char *photos_key = strstr(json, "\"photos\"");
+    if (photos_key) {
+        const char *colon = strchr(photos_key + 8, ':');
+        if (colon) {
+            /* Skip whitespace after colon */
+            const char *val = colon + 1;
+            while (*val == ' ' || *val == '\t' || *val == '\n' || *val == '\r') val++;
+            if (*val != '[') {
+                fprintf(stderr,
+                    "[WARN] schema: 'photos' must be a JSON array (expected '[').\n");
+                ok = 0;
+            }
+        }
+    }
+
+    free(json);
+
+    if (ok) {
+        printf("[OK]   schema: '%s' is valid.\n", PORTFOLIO_JSON_PATH);
+    }
+    return ok;
 }
 
 /* -----------------------------------------------------------------------

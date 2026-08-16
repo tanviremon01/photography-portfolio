@@ -7,7 +7,7 @@
  *  Serves static files from the public/ directory and provides a JSON API
  *  endpoint at /api/portfolio for dynamic portfolio data.
  *
- *  Compile:  gcc -o server.exe src/server.c src/router.c src/api.c src/mime.c -lws2_32
+ *  Compile:  gcc -o server.exe src/server.c src/router.c src/api.c src/admin.c src/mime.c -lws2_32 -lz
  *  Run:      server.exe
  *  Browse:   http://localhost:8080
  *
@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "router.h"
+#include "api.h"
 
 /* Link with -lws2_32 when compiling with GCC */
 
@@ -118,6 +119,9 @@ int main(void) {
 
     printf("[SERVER] Listening on http://%s:%d\n", SERVER_ADDR, SERVER_PORT);
     printf("[SERVER] Press Ctrl+C to stop.\n\n");
+
+    /* Validate portfolio data before serving any requests */
+    validate_portfolio_json();
 
     while (g_running) {
         struct sockaddr_in client_addr;

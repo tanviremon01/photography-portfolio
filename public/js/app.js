@@ -108,20 +108,33 @@
             const response = await fetch(API_URL);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             portfolioData = await response.json();
-            renderSiteData();
-            renderHighlights();
-            renderFilters();
-            renderGallery();
-            renderAwards();
-            renderServices();
-            renderPortfolios();
-            renderClients();
-            renderTestimonials();
-            setupScrollAnimations();
-            setupStatsCountUp();
         } catch (err) {
             console.error('[Portfolio] Failed to fetch data:', err);
             showError();
+            return;
+        }
+
+        /* Each section is isolated — a broken render never blocks the others */
+        const sections = [
+            ['renderSiteData',       renderSiteData],
+            ['renderHighlights',     renderHighlights],
+            ['renderFilters',        renderFilters],
+            ['renderGallery',        renderGallery],
+            ['renderAwards',         renderAwards],
+            ['renderServices',       renderServices],
+            ['renderPortfolios',     renderPortfolios],
+            ['renderClients',        renderClients],
+            ['renderTestimonials',   renderTestimonials],
+            ['setupScrollAnimations', setupScrollAnimations],
+            ['setupStatsCountUp',    setupStatsCountUp],
+        ];
+
+        for (const [name, fn] of sections) {
+            try {
+                fn();
+            } catch (err) {
+                console.error(`[Portfolio] ${name}() failed:`, err);
+            }
         }
     }
 
