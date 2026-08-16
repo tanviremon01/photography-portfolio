@@ -1304,17 +1304,21 @@
 
             if (btn.dataset.action === 'add') {
                 let currentPhotos = [];
+                let stagedFiles = [];
                 showModal('Add Award', awardFormHtml({ photos: currentPhotos }), async () => {
-                    await handleAwardSave(null, currentPhotos);
+                    await handleAwardSave(null, currentPhotos, stagedFiles);
                 });
                 bindAwardPhotoRemovers(currentPhotos);
+                bindAwardPhotoStaging(stagedFiles);
 
             } else if (btn.dataset.action === 'edit') {
                 let currentPhotos = [...(awards[idx].photos || [])];
+                let stagedFiles = [];
                 showModal('Edit Award', awardFormHtml({ ...awards[idx], photos: currentPhotos }), async () => {
-                    await handleAwardSave(awards[idx], currentPhotos);
+                    await handleAwardSave(awards[idx], currentPhotos, stagedFiles);
                 });
                 bindAwardPhotoRemovers(currentPhotos);
+                bindAwardPhotoStaging(stagedFiles);
 
             } else if (btn.dataset.action === 'delete') {
                 data.awards.splice(idx, 1);
@@ -1322,19 +1326,22 @@
             }
         };
 
-        async function handleAwardSave(awardObj, currentPhotos) {
+        async function handleAwardSave(awardObj, currentPhotos, stagedFiles) {
             const confirmBtn = $('#modal-confirm');
             confirmBtn.disabled = true;
             confirmBtn.textContent = 'Uploading...';
 
             try {
-                // Upload new photos if any
-                const fileInput = $('#award-photos');
-                if (fileInput && fileInput.files.length > 0) {
-                    for (let i = 0; i < fileInput.files.length; i++) {
-                        const file = fileInput.files[i];
+                // Upload newly staged photos
+                if (stagedFiles && stagedFiles.length > 0) {
+                    for (let i = 0; i < stagedFiles.length; i++) {
+                        const file = stagedFiles[i];
                         const res = await uploadFile(file, file.name, 'awards');
                         currentPhotos.push(res.url);
+                        // Small delay for static hosting to prevent GitHub API rate limits
+                        if (window.IS_STATIC_HOSTING) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
                     }
                 }
 
@@ -1371,10 +1378,53 @@
                     const i = parseInt(removeBtn.dataset.idx);
                     currentPhotos.splice(i, 1);
                     removeBtn.parentElement.remove();
-                    // update indices of remaining buttons so they don't break
                     wrap.querySelectorAll('.btn-remove-photo').forEach((b, newIdx) => b.dataset.idx = newIdx);
                 }
             };
+        }
+
+        function bindAwardPhotoStaging(stagedFiles) {
+            const fileInput = $('#award-photos');
+            const stagedWrap = $('#award-staged-photos');
+            if (!fileInput || !stagedWrap) return;
+
+            fileInput.addEventListener('change', () => {
+                if (!fileInput.files || fileInput.files.length === 0) return;
+                
+                // Add selected files to our staged array
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    stagedFiles.push(fileInput.files[i]);
+                }
+                
+                // Reset the input so the user can select the same file again if they want
+                fileInput.value = '';
+                
+                renderStagedPhotos();
+            });
+
+            function renderStagedPhotos() {
+                stagedWrap.innerHTML = stagedFiles.map((file, i) => {
+                    const url = URL.createObjectURL(file);
+                    return `
+                        <div class="award-photo-thumb" style="position:relative; width: 60px; height: 60px; border-radius: 4px; overflow: hidden; background: #222; border: 2px solid var(--color-accent);">
+                            <img src="${url}" style="width:100%; height:100%; object-fit:cover;">
+                            <button type="button" class="btn-remove-staged" data-idx="${i}" style="position:absolute; top:4px; right:4px; background:rgba(255,0,0,0.8); color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+                        </div>
+                    `;
+                }).join('');
+
+                // Revoke object URLs later to avoid memory leaks? The browser clears them when page unloads, 
+                // but we can just leave them since there won't be many.
+            }
+
+            stagedWrap.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('.btn-remove-staged');
+                if (removeBtn) {
+                    const i = parseInt(removeBtn.dataset.idx);
+                    stagedFiles.splice(i, 1);
+                    renderStagedPhotos();
+                }
+            });
         }
     }
 
@@ -1393,11 +1443,12 @@
             <div class="form-group"><label>Description</label><textarea class="text-input" id="award-desc" rows="2">${escapeHtml(a.description || '')}</textarea></div>
             <div class="form-group">
                 <label>Award Photos</label>
-                <div id="award-existing-photos" style="display:flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                <div id="award-existing-photos" style="display:flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
                     ${photosHtml}
                 </div>
+                <div id="award-staged-photos" style="display:flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;"></div>
                 <input type="file" class="text-input" id="award-photos" accept="image/*" multiple>
-                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;">Select new photos to add (they will upload when you click Save).</p>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;">You can select multiple photos, or select photos one by one. They will upload when you click Save.</p>
             </div>`;
     }
 
