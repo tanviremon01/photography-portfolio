@@ -163,6 +163,16 @@
             "url": "/images/1000068432.jpg",
             "thumbnail": "/images/1000068432.jpg",
             "description": ""
+        },
+        {
+            "id": 17,
+            "title": "The Walking Man",
+            "category": [
+                "Landscape"
+            ],
+            "url": "/images/TAEprocessed-06807.JPG",
+            "thumbnail": "/images/TAEprocessed-06807.JPG",
+            "description": ""
         }
     ],
     "highlights": [
