@@ -80,24 +80,7 @@ The portfolio includes a hidden, password-protected dashboard allowing the site 
 
 ---
 
-## 🔮 What Could Be Better (Recommendations)
 
-While the site is highly functional and beautifully designed, here are recommendations for future iterations:
-
-### 🔴 Security (High Priority)
-- **Replace plain-text `admin_pass.txt`:** Use a bcrypt hash compared server-side instead of plain-text passwords.
-- **Rate Limiting:** Add rate limiting on `/api/admin/*` to prevent brute-force password attempts on the local server.
-- **HTTPS / TLS:** The C server currently speaks plain HTTP. For production self-hosting (non-Vercel), put it behind nginx or Caddy with a TLS certificate.
-
-### 🟡 Performance
-- **Automated Thumbnail Generation:** Currently, the site loads compressed original images for the gallery thumbnails. Generating a separate, tiny `_thumb.webp` for each image would drastically reduce data usage on mobile devices.
-- **Cache-Control Headers:** Add cache headers in the C router for static assets (images, CSS, JS) so browsers don't re-fetch them on every local visit.
-
-### 🟢 UX / Design
-- **Contact Form:** The contact section only features an email link. A fully wired HTML contact form would complete the UX loop.
-- **Dark/Light Mode Toggle:** The CSS design system is fully tokenized. Adding a theme toggle would only require ~20 lines of JS and a `[data-theme="light"]` CSS block.
-
----
 
 ## 🚀 Running Locally
 
