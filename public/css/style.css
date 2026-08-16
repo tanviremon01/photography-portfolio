@@ -111,6 +111,7 @@
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* offset for fixed header */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -533,47 +534,7 @@ ul {
     background: var(--color-bg-primary);
 }
 
-.portfolios-tabs {
-    display: flex;
-    justify-content: center;
-    gap: var(--space-xs);
-    margin-bottom: var(--space-xl);
-    max-width: var(--container-max);
-    margin-left: auto;
-    margin-right: auto;
-    flex-wrap: wrap;
-}
-
-.portfolio-tab {
-    padding: 0.65rem 1.6rem;
-    font-size: var(--fs-small);
-    font-weight: var(--fw-medium);
-    color: var(--color-text-secondary);
-    border: 1px solid var(--color-border);
-    border-radius: 100px;
-    transition: all var(--transition-fast);
-    cursor: pointer;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.portfolio-tab:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-border-hover);
-    background: var(--color-bg-tertiary);
-}
-
-.portfolio-tab.active {
-    color: var(--color-bg-primary);
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-}
-
-.portfolio-tab .tab-icon {
-    font-size: 1rem;
-}
+/* .portfolios-tabs and .portfolio-tab removed — tabs UI replaced by folder cards */
 
 .portfolios-content {
     max-width: var(--container-max);
@@ -618,12 +579,6 @@ ul {
     background: rgba(201, 168, 76, 0.03);
 }
 
-.folder-icon {
-    font-size: 1.6rem;
-    color: var(--color-accent);
-    flex-shrink: 0;
-}
-
 .folder-icon-svg {
     width: 28px;
     height: 28px;
@@ -639,16 +594,7 @@ ul {
     flex: 1;
 }
 
-.project-folder-year {
-    font-size: var(--fs-label);
-    font-weight: var(--fw-semi);
-    color: var(--color-accent);
-    background: var(--color-accent-dim);
-    padding: 0.2rem 0.65rem;
-    border-radius: 100px;
-    letter-spacing: 0.05em;
-    flex-shrink: 0;
-}
+/* .project-folder-year removed — year field not rendered */
 
 .project-folder-body {
     padding: var(--space-md) var(--space-lg);
@@ -807,10 +753,7 @@ ul {
         box-shadow var(--transition-smooth);
 }
 
-/* Every 3rd card is taller for visual variety */
-.photo-card:nth-child(3n + 1) {
-    grid-row: span 1;
-}
+/* nth-child grid-row: span 1 removed — default value, no effect */
 
 .photo-card:hover {
     transform: translateY(-6px);
@@ -1627,9 +1570,7 @@ ul {
     transition: transform var(--transition-smooth);
 }
 
-.lightbox-overlay.active .lightbox-image {
-    transform: scale(1);
-}
+/* .lightbox-overlay.active .lightbox-image scale(1) removed — redundant default */
 
 .lightbox-caption {
     margin-top: 0;
@@ -1685,19 +1626,8 @@ ul {
 }
 
 @keyframes fadeInUpCentered {
-    from {
-        opacity: 0;
-        transform: translate(-50%, 20px);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-}
-
-@keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.92); }
-    to   { opacity: 1; transform: scale(1); }
+    from { opacity: 0; transform: translate(-50%, 20px); }
+    to   { opacity: 1; transform: translate(-50%, 0); }
 }
 
 @keyframes spin {
@@ -1740,13 +1670,16 @@ ul {
 
 /* Phones (≤ 480px) */
 @media (max-width: 480px) {
+    /* 2-column gallery on phones for better density */
     .gallery-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-xs);
     }
 
     .about-stats {
         flex-direction: column;
         gap: var(--space-sm);
+        align-items: center;
     }
 
     .highlights-grid {
@@ -1770,16 +1703,29 @@ ul {
     }
 
     .about-image-frame {
-        max-width: 220px;
-        height: 220px;
+        max-width: 200px;
+        height: 200px;
     }
 
+    /* Tighter hero on small phones */
     .hero {
-        padding-top: calc(var(--space-xl) + 60px);
+        padding-top: calc(var(--space-lg) + 64px);
+        padding-bottom: var(--space-md);
     }
 
     .stat-number {
         font-size: 1.6rem;
+    }
+
+    /* Larger tap target for lightbox close on small screens */
+    .lightbox-close {
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 56px;
+        height: 56px;
+        font-size: 1.8rem;
+        background: rgba(0, 0, 0, 0.6);
+        color: var(--color-text-primary);
     }
 }
 
@@ -1873,14 +1819,28 @@ ul {
     }
 
     .portfolios-content {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     }
 
+    /* Horizontally scrollable filter bar on mobile */
     .filter-bar {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+        padding-bottom: 0.5rem;
         gap: 0.4rem;
+        /* hide scrollbar visually */
+        scrollbar-width: none;
+    }
+
+    .filter-bar::-webkit-scrollbar {
+        display: none;
     }
 
     .filter-btn {
+        flex-shrink: 0;
         padding: 0.45rem 1rem;
         font-size: 0.8rem;
     }
