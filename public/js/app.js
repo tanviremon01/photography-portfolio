@@ -99,6 +99,7 @@
         setupHeader();
         setupMobileMenu();
         setupSmoothScroll();
+        setupGalleryReset();
         updateFooterYear();
         fetchPortfolio();
     }
@@ -819,6 +820,36 @@
     }
 
     /* -------------------------------------------------------------------
+     * GALLERY RESET — Reset to 6 photos when user leaves the gallery
+     * ------------------------------------------------------------------- */
+    function setupGalleryReset() {
+        const gallerySection = document.getElementById('gallery');
+        if (!gallerySection) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                /* If gallery goes completely out of view */
+                if (!entry.isIntersecting && galleryVisibleCount > GALLERY_PAGE_SIZE) {
+                    const oldHeight = gallerySection.getBoundingClientRect().height;
+                    const rect = gallerySection.getBoundingClientRect();
+                    
+                    galleryVisibleCount = GALLERY_PAGE_SIZE;
+                    renderGallery(false);
+                    
+                    /* If gallery is above viewport, collapsing it pulls the page up.
+                       We must compensate the scroll position so the user's view doesn't jump. */
+                    if (rect.bottom <= 0) {
+                        const newHeight = gallerySection.getBoundingClientRect().height;
+                        window.scrollBy(0, -(oldHeight - newHeight));
+                    }
+                }
+            });
+        }, { threshold: 0 });
+
+        observer.observe(gallerySection);
+    }
+
+    /* -------------------------------------------------------------------
      * SMOOTH SCROLL — For anchor links.
      * ------------------------------------------------------------------- */
     function setupSmoothScroll() {
@@ -827,10 +858,22 @@
                 const href = link.getAttribute('href');
                 const target = document.querySelector(href);
                 
-                /* Reset gallery if the user navigates back to it via the nav link */
-                if (href === '#gallery' && galleryVisibleCount > GALLERY_PAGE_SIZE) {
-                    galleryVisibleCount = GALLERY_PAGE_SIZE;
-                    renderGallery(false); /* instant reset to 6 photos */
+                /* Instantly collapse gallery if expanded, before smooth scroll starts */
+                if (galleryVisibleCount > GALLERY_PAGE_SIZE) {
+                    const gallerySection = document.getElementById('gallery');
+                    if (gallerySection) {
+                        const oldHeight = gallerySection.getBoundingClientRect().height;
+                        const oldTop = gallerySection.getBoundingClientRect().top;
+                        
+                        galleryVisibleCount = GALLERY_PAGE_SIZE;
+                        renderGallery(false);
+                        
+                        /* Compensate scroll if gallery was above current view */
+                        if (oldTop < 0) {
+                            const newHeight = gallerySection.getBoundingClientRect().height;
+                            window.scrollBy(0, -(oldHeight - newHeight));
+                        }
+                    }
                 }
 
                 if (target) {
