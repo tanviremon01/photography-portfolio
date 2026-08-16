@@ -140,9 +140,14 @@
             });
             
             if (res.status === 404 || res.status === 405) {
-                // Backend not found (e.g. Vercel static hosting)
+                // Backend not found (Vercel static hosting).
+                // Verify against SHA-256 hash — hash is safe to store in JS; plaintext is not.
                 window.IS_STATIC_HOSTING = true;
-                if (token.length >= 4) {
+                const STATIC_PASS_HASH = '58de2f79eeabd63dccfb0ace419be3f76ba493f9878647e7b129c2aad4a65bdc';
+                const encoder = new TextEncoder();
+                const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(token));
+                const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                if (hashHex === STATIC_PASS_HASH) {
                     sessionStorage.setItem('adminToken', token);
                     showAdmin();
                     return;
