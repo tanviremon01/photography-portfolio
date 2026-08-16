@@ -17,3 +17,6 @@ Thumbs.db
 # Sensitive configuration files
 src/admin_pass.txt
 src/email_config.json
+
+# Ignore README
+README.md
