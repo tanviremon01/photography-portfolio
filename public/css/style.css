@@ -814,6 +814,101 @@ ul {
     line-height: 1.5;
 }
 
+/* Load More button */
+.gallery-load-more-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 2.5rem 0 1rem;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+}
+
+.gallery-load-more-wrap.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.gallery-load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 2.2rem;
+    background: transparent;
+    border: 1.5px solid var(--color-border);
+    color: var(--color-text);
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: var(--font-sans);
+    position: relative;
+    overflow: hidden;
+}
+
+.gallery-load-more-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-accent);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    border-radius: inherit;
+}
+
+.gallery-load-more-btn:hover {
+    border-color: var(--color-accent);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(var(--accent-rgb, 124,58,237), 0.3);
+}
+
+.gallery-load-more-btn:hover::before {
+    opacity: 1;
+}
+
+.gallery-load-more-btn:active {
+    transform: translateY(0);
+}
+
+.gallery-load-more-btn span,
+.gallery-load-more-btn svg {
+    position: relative;
+    z-index: 1;
+}
+
+.load-more-count {
+    font-size: 0.8rem;
+    opacity: 0.65;
+    background: var(--color-bg-secondary);
+    padding: 0.15rem 0.55rem;
+    border-radius: 100px;
+    transition: background 0.25s ease;
+}
+
+.gallery-load-more-btn:hover .load-more-count {
+    background: rgba(255,255,255,0.2);
+}
+
+.load-more-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+}
+
+.gallery-load-more-btn:hover .load-more-icon {
+    transform: translateY(2px);
+}
+
+/* When all photos are loaded — hide the button */
+.gallery-load-more-wrap.hidden {
+    display: none;
+}
+
 
 /* -----------------------------------------------------------------------
    8. AWARDS & CERTIFICATES

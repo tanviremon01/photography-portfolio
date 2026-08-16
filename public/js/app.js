@@ -50,6 +50,9 @@
         clientsMarquee:       $('#clients-marquee'),
         testimonialsCarousel: $('#testimonials-carousel'),
         testimonialsDots:     $('#testimonials-dots'),
+        loadMoreWrap:         $('#gallery-load-more-wrap'),
+        loadMoreBtn:          $('#gallery-load-more-btn'),
+        loadMoreCount:        $('#load-more-count'),
     };
 
     /* -------------------------------------------------------------------
@@ -61,6 +64,8 @@
     let filteredPhotos = [];
     let testimonialTimer = null;
     let activeTestimonial = 0;
+    const GALLERY_PAGE_SIZE = 6;  /* photos shown per batch */
+    let galleryVisibleCount = GALLERY_PAGE_SIZE;
 
     /* -------------------------------------------------------------------
      * INIT — Entry point on DOMContentLoaded.
@@ -520,7 +525,7 @@
     }
 
     /* -------------------------------------------------------------------
-     * GALLERY — Render photo cards with smooth filter fade transition.
+     * GALLERY — Render photo cards with pagination + Load More button.
      * ------------------------------------------------------------------- */
     function renderGallery(animate = true) {
         if (!DOM.galleryGrid || !portfolioData.photos) return;
@@ -529,22 +534,28 @@
         filteredPhotos = activeCategory === 'All'
             ? portfolioData.photos
             : portfolioData.photos.filter((p) => {
-                if (Array.isArray(p.category)) {
-                    return p.category.includes(activeCategory);
-                }
+                if (Array.isArray(p.category)) return p.category.includes(activeCategory);
                 return p.category === activeCategory;
             });
 
-        function buildCards() {
-            DOM.galleryGrid.innerHTML = '';
+        /* Reset to first page whenever filter changes */
+        galleryVisibleCount = GALLERY_PAGE_SIZE;
+
+        function buildCards(startIndex, appendMode = false) {
+            if (!appendMode) DOM.galleryGrid.innerHTML = '';
 
             if (filteredPhotos.length === 0) {
                 DOM.galleryGrid.innerHTML =
                     '<div class="gallery-loading"><p>No photos in this category yet.</p></div>';
+                hideLoadMore();
                 return;
             }
 
-            filteredPhotos.forEach((photo, index) => {
+            const slice = filteredPhotos.slice(startIndex, startIndex + GALLERY_PAGE_SIZE);
+            const firstNewIndex = DOM.galleryGrid.querySelectorAll('.photo-card').length;
+
+            slice.forEach((photo, sliceIdx) => {
+                const index = startIndex + sliceIdx; /* real index into filteredPhotos */
                 const card = document.createElement('div');
                 card.className = 'photo-card';
                 card.setAttribute('data-index', index);
@@ -576,24 +587,59 @@
                 DOM.galleryGrid.appendChild(card);
             });
 
-            /* Staggered entrance animations */
+            /* Staggered entrance animations — only for newly added cards */
             requestAnimationFrame(() => {
-                const cards = DOM.galleryGrid.querySelectorAll('.photo-card');
-                cards.forEach((card, i) => {
-                    setTimeout(() => card.classList.add('visible'), i * 60);
+                const allCards = DOM.galleryGrid.querySelectorAll('.photo-card');
+                allCards.forEach((card, i) => {
+                    if (i >= firstNewIndex) {
+                        setTimeout(() => card.classList.add('visible'), (i - firstNewIndex) * 60);
+                    }
                 });
+            });
+
+            updateLoadMore();
+        }
+
+        function updateLoadMore() {
+            const remaining = filteredPhotos.length - galleryVisibleCount;
+            if (!DOM.loadMoreWrap) return;
+            if (remaining <= 0) {
+                hideLoadMore();
+            } else {
+                DOM.loadMoreWrap.classList.remove('hidden');
+                /* slight delay so it animates in after the cards */
+                setTimeout(() => DOM.loadMoreWrap.classList.add('visible'), 200);
+                if (DOM.loadMoreCount) DOM.loadMoreCount.textContent = `+${remaining}`;
+            }
+        }
+
+        function hideLoadMore() {
+            if (!DOM.loadMoreWrap) return;
+            DOM.loadMoreWrap.classList.remove('visible');
+            setTimeout(() => DOM.loadMoreWrap.classList.add('hidden'), 400);
+        }
+
+        /* Wire the button (idempotent — only attaches once) */
+        if (DOM.loadMoreBtn && !DOM.loadMoreBtn._wired) {
+            DOM.loadMoreBtn._wired = true;
+            DOM.loadMoreBtn.addEventListener('click', () => {
+                const start = galleryVisibleCount;
+                galleryVisibleCount += GALLERY_PAGE_SIZE;
+                buildCards(start, /* appendMode= */ true);
             });
         }
 
         if (animate) {
-            /* Fade out → swap content → fade back in */
             DOM.galleryGrid.classList.add('filtering');
+            if (DOM.loadMoreWrap) {
+                DOM.loadMoreWrap.classList.remove('visible');
+            }
             setTimeout(() => {
-                buildCards();
+                buildCards(0, false);
                 DOM.galleryGrid.classList.remove('filtering');
             }, 220);
         } else {
-            buildCards();
+            buildCards(0, false);
         }
     }
 
