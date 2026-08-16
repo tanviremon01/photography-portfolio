@@ -34,6 +34,9 @@
 <body>
 
     <!-- ============================== HEADER ============================== -->
+    <!-- Mobile nav backdrop (tap to close) -->
+    <div class="nav-backdrop" id="nav-backdrop"></div>
+
     <header class="site-header" id="site-header">
         <div class="header-inner">
             <a href="#" class="logo" id="logo">
@@ -64,6 +67,7 @@
         <div class="hero-content">
             <p class="hero-label" id="hero-label">Photography Portfolio</p>
             <h1 class="hero-title" id="hero-title">Exploring Life<br>Through The Lens</h1>
+            <p class="hero-tagline" id="hero-tagline"></p>
             <a href="#gallery" class="hero-cta">Explore Gallery</a>
         </div>
         <div class="hero-scroll-indicator">
@@ -158,6 +162,7 @@
             <div class="about-image-col">
                 <div class="about-image-frame">
                     <div class="about-image-placeholder" id="about-image">
+                        <span class="about-initial" id="about-initial"></span>
                         <img src="/images/TanvirEmon.jpg" alt="Tanvir Ahammad Emon" class="author-photo"
                             id="author-photo">
                     </div>

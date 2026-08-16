@@ -2,6 +2,11 @@
 *.exe
 server.exe
 
+# Build/compile artifacts
+compile_out.txt
+index_out.html
+response.json
+
 # OS generated files
 .DS_Store
 Thumbs.db

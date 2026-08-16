@@ -338,6 +338,7 @@ ul {
     color: var(--color-text-secondary);
     font-weight: var(--fw-light);
     margin-bottom: var(--space-xl);
+    min-height: 1.5em;
     opacity: 0;
     transform: translateY(20px);
     animation: fadeInUp 0.8s ease forwards 0.6s;
@@ -1041,6 +1042,7 @@ ul {
     font-weight: var(--fw-bold);
     color: var(--color-accent);
     opacity: 0.3;
+    display: none; /* hidden by default — shown only when no author_photo */
 }
 
 .about-text-col .section-label {
@@ -1450,11 +1452,6 @@ ul {
     margin-bottom: 0.3rem;
 }
 
-.footer-note {
-    font-size: var(--fs-label);
-    color: var(--color-text-muted);
-}
-
 
 /* -----------------------------------------------------------------------
    15. LIGHTBOX
@@ -1529,6 +1526,33 @@ ul {
 .lightbox-next:hover {
     background: rgba(255, 255, 255, 0.1);
     color: var(--color-text-primary);
+}
+
+/* ============================== NAV BACKDROP ============================== */
+.nav-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 98;
+    background: rgba(0, 0, 0, 0.55);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    transition: opacity var(--transition-smooth);
+}
+
+.nav-backdrop.active {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .nav-backdrop {
+        display: block;
+        pointer-events: none;
+    }
+    .nav-backdrop.active {
+        pointer-events: auto;
+    }
 }
 
 /* ============================== ADMIN BUTTON ============================== */
@@ -1665,26 +1689,10 @@ ul {
         opacity: 0;
         transform: translate(-50%, 20px);
     }
-
     to {
         opacity: 1;
         transform: translate(-50%, 0);
     }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-40px); }
-    to   { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideInRight {
-    from { opacity: 0; transform: translateX(40px); }
-    to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes scaleIn {
@@ -1693,9 +1701,7 @@ ul {
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
 }
 
 @keyframes scrollPulse {
@@ -1732,7 +1738,7 @@ ul {
 
 /* Small phones (default styles above) */
 
-/* Larger phones */
+/* Phones (≤ 480px) */
 @media (max-width: 480px) {
     .gallery-grid {
         grid-template-columns: 1fr;
@@ -1762,6 +1768,19 @@ ul {
     .portfolios-content {
         grid-template-columns: 1fr;
     }
+
+    .about-image-frame {
+        max-width: 220px;
+        height: 220px;
+    }
+
+    .hero {
+        padding-top: calc(var(--space-xl) + 60px);
+    }
+
+    .stat-number {
+        font-size: 1.6rem;
+    }
 }
 
 /* Tablets */
@@ -1770,13 +1789,14 @@ ul {
         position: fixed;
         top: 0;
         right: -100%;
-        width: 280px;
+        width: min(280px, 80vw);
         height: 100vh;
         background: var(--color-bg-secondary);
         padding: 5rem var(--space-lg) var(--space-lg);
         transition: right var(--transition-smooth);
         box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
         z-index: 99;
+        overflow-y: auto;
     }
 
     .main-nav.open {
@@ -1798,7 +1818,7 @@ ul {
     }
 
     .gallery-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: var(--space-sm);
     }
 
@@ -1822,16 +1842,22 @@ ul {
     }
 
     .about-image-frame {
-        max-width: 320px;
+        max-width: 260px;
+        height: 260px;
         margin: 0 auto;
     }
 
     .lightbox-prev,
     .lightbox-next {
-        width: 40px;
-        height: 40px;
-        font-size: 1.4rem;
+        width: 44px;
+        height: 44px;
+        font-size: 1.5rem;
+        background: rgba(0, 0, 0, 0.5);
+        color: var(--color-text-primary);
     }
+
+    .lightbox-prev { left: 0.5rem; }
+    .lightbox-next { right: 0.5rem; }
 
     .highlights-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1848,6 +1874,20 @@ ul {
 
     .portfolios-content {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filter-bar {
+        gap: 0.4rem;
+    }
+
+    .filter-btn {
+        padding: 0.45rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .hero {
+        padding-top: calc(var(--space-2xl) + 60px);
+        padding-bottom: var(--space-lg);
     }
 }
 

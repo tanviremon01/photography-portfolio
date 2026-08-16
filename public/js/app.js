@@ -19,9 +19,8 @@
 
     const DOM = {
         header:       $('#site-header'),
-        heroTitle:    $('#hero-title'),
-        heroTagline:  $('#hero-tagline'),
         heroLabel:    $('#hero-label'),
+        heroTagline:  $('#hero-tagline'),
         filterBar:    $('#filter-bar'),
         galleryGrid:  $('#gallery-grid'),
         galleryLoad:  $('#gallery-loading'),
@@ -42,16 +41,15 @@
         lbPrev:       $('#lightbox-prev'),
         lbNext:       $('#lightbox-next'),
         mobileToggle: $('#mobile-menu-toggle'),
+        navBackdrop:  $('#nav-backdrop'),
         mainNav:      $('#main-nav'),
-        /* New section DOM refs */
-        highlightsGrid:          $('#highlights-grid'),
-        awardsGrid:              $('#awards-grid'),
-        servicesGrid:            $('#services-grid'),
-        portfoliosTabs:          $('#portfolios-tabs'),
-        portfoliosContent:       $('#portfolios-content'),
-        clientsMarquee:          $('#clients-marquee'),
-        testimonialsCarousel:    $('#testimonials-carousel'),
-        testimonialsDots:        $('#testimonials-dots'),
+        highlightsGrid:       $('#highlights-grid'),
+        awardsGrid:           $('#awards-grid'),
+        servicesGrid:         $('#services-grid'),
+        portfoliosContent:    $('#portfolios-content'),
+        clientsMarquee:       $('#clients-marquee'),
+        testimonialsCarousel: $('#testimonials-carousel'),
+        testimonialsDots:     $('#testimonials-dots'),
     };
 
     /* -------------------------------------------------------------------
@@ -141,7 +139,7 @@
     function renderSiteData() {
         const site = portfolioData.site;
 
-        /* Hero */
+        /* Hero tagline */
         if (site.tagline && DOM.heroTagline) {
             DOM.heroTagline.textContent = site.tagline;
         }
@@ -160,7 +158,7 @@
             DOM.authorPhoto.src = site.author_photo;
             DOM.authorPhoto.style.display = 'block';
             if (DOM.aboutInitial) {
-                DOM.aboutInitial.style.display = 'none'; // hide initials if photo exists
+                DOM.aboutInitial.style.display = 'none';
             }
         }
 
@@ -337,10 +335,7 @@
     }
 
     /* -------------------------------------------------------------------
-     * PORTFOLIOS — Brand / Event / Corporate folder cards with tabs.
-     * ------------------------------------------------------------------- */
-    /* -------------------------------------------------------------------
-     * PORTFOLIOS — Brand / Event / Corporate folders.
+     * PORTFOLIOS — Brand / Event / Corporate folder cards.
      * ------------------------------------------------------------------- */
     function renderPortfolios() {
         if (!portfolioData.portfolios || !DOM.portfoliosContent) return;
@@ -693,18 +688,31 @@
     function setupMobileMenu() {
         if (!DOM.mobileToggle || !DOM.mainNav) return;
 
+        const openMenu = () => {
+            DOM.mobileToggle.classList.add('active');
+            DOM.mainNav.classList.add('open');
+            if (DOM.navBackdrop) DOM.navBackdrop.classList.add('active');
+        };
+
+        const closeMenu = () => {
+            DOM.mobileToggle.classList.remove('active');
+            DOM.mainNav.classList.remove('open');
+            if (DOM.navBackdrop) DOM.navBackdrop.classList.remove('active');
+        };
+
         DOM.mobileToggle.addEventListener('click', () => {
-            DOM.mobileToggle.classList.toggle('active');
-            DOM.mainNav.classList.toggle('open');
+            DOM.mainNav.classList.contains('open') ? closeMenu() : openMenu();
         });
 
         /* Close menu on nav link click */
         DOM.mainNav.querySelectorAll('.nav-link').forEach((link) => {
-            link.addEventListener('click', () => {
-                DOM.mobileToggle.classList.remove('active');
-                DOM.mainNav.classList.remove('open');
-            });
+            link.addEventListener('click', closeMenu);
         });
+
+        /* Close menu when tapping outside (backdrop) */
+        if (DOM.navBackdrop) {
+            DOM.navBackdrop.addEventListener('click', closeMenu);
+        }
     }
 
     /* -------------------------------------------------------------------
