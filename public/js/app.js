@@ -926,7 +926,6 @@
             ...$$('.contact-inner'),
             ...$$('.filter-bar'),
             ...$$('.highlights-grid'),
-            ...$$('.portfolios-tabs'),
             ...$$('.clients-marquee-wrapper'),
             ...$$('.testimonials-carousel'),
         ];

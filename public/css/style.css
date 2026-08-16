@@ -534,7 +534,7 @@ ul {
     background: var(--color-bg-primary);
 }
 
-/* .portfolios-tabs and .portfolio-tab removed — tabs UI replaced by folder cards */
+
 
 .portfolios-content {
     max-width: var(--container-max);
@@ -593,8 +593,6 @@ ul {
     color: var(--color-text-primary);
     flex: 1;
 }
-
-/* .project-folder-year removed — year field not rendered */
 
 .project-folder-body {
     padding: var(--space-md) var(--space-lg);
@@ -752,8 +750,6 @@ ul {
     transition: opacity 0.6s ease, transform 0.6s ease,
         box-shadow var(--transition-smooth);
 }
-
-/* nth-child grid-row: span 1 removed — default value, no effect */
 
 .photo-card:hover {
     transform: translateY(-6px);
@@ -1794,8 +1790,6 @@ ul {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     transition: transform var(--transition-smooth);
 }
-
-/* .lightbox-overlay.active .lightbox-image scale(1) removed — redundant default */
 
 .lightbox-caption {
     margin-top: 0;
