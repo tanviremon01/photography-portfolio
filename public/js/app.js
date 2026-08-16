@@ -604,25 +604,19 @@
         let loadMoreTimeouts = [];
 
         function updateLoadMore() {
-            loadMoreTimeouts.forEach(clearTimeout);
-            loadMoreTimeouts = [];
-
             const remaining = filteredPhotos.length - galleryVisibleCount;
             if (!DOM.loadMoreWrap) return;
 
-            /* Remove old "all loaded" message if present */
-            DOM.loadMoreWrap.querySelectorAll('.gallery-all-loaded').forEach(el => el.remove());
-
             if (remaining <= 0) {
-                hideLoadMore();
-            } else {
+                DOM.loadMoreWrap.classList.add('all-loaded');
+                DOM.loadMoreWrap.classList.add('visible');
                 DOM.loadMoreWrap.classList.remove('hidden');
-                if (DOM.loadMoreBtn) {
-                    DOM.loadMoreBtn.style.display = ''; // restore button
-                }
+            } else {
+                DOM.loadMoreWrap.classList.remove('all-loaded');
+                DOM.loadMoreWrap.classList.remove('hidden');
                 
                 /* Animate in slightly after cards appear */
-                loadMoreTimeouts.push(setTimeout(() => DOM.loadMoreWrap.classList.add('visible'), 200));
+                setTimeout(() => DOM.loadMoreWrap.classList.add('visible'), 200);
                 
                 if (DOM.loadMoreCount) {
                     const prev = DOM.loadMoreCount.textContent;
@@ -635,36 +629,6 @@
                     }
                 }
             }
-        }
-
-        function hideLoadMore() {
-            if (!DOM.loadMoreWrap) return;
-            DOM.loadMoreWrap.classList.remove('visible');
-            
-            /* After fade out, replace button with "All photos loaded" text */
-            loadMoreTimeouts.push(setTimeout(() => {
-                DOM.loadMoreWrap.classList.add('hidden');
-                if (DOM.loadMoreBtn) {
-                    DOM.loadMoreBtn.style.display = 'none'; // hide button instead of deleting it
-                }
-                
-                /* Show completion message */
-                const msg = document.createElement('div');
-                msg.className = 'gallery-all-loaded';
-                msg.textContent = 'All photos loaded';
-                DOM.loadMoreWrap.classList.remove('hidden');
-                DOM.loadMoreWrap.appendChild(msg);
-                DOM.loadMoreWrap.classList.add('visible');
-                
-                /* Auto-hide after 2.5 seconds */
-                loadMoreTimeouts.push(setTimeout(() => {
-                    DOM.loadMoreWrap.classList.remove('visible');
-                    loadMoreTimeouts.push(setTimeout(() => {
-                        DOM.loadMoreWrap.classList.add('hidden');
-                        msg.remove(); // only remove the message, button remains hidden
-                    }, 400));
-                }, 2500));
-            }, 400));
         }
 
         /* Wire the button (idempotent — only attaches once) */
@@ -840,10 +804,24 @@
         const gallerySection = document.getElementById('gallery');
         if (!gallerySection) return;
 
+        let isGalleryOutOfView = false;
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
-                /* If gallery goes completely out of view */
-                if (!entry.isIntersecting && galleryVisibleCount > GALLERY_PAGE_SIZE) {
+                isGalleryOutOfView = !entry.isIntersecting;
+            });
+        }, { threshold: 0 });
+
+        observer.observe(gallerySection);
+
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            
+            /* Debounce: only reset when the user STOPS scrolling for 300ms.
+               This completely eliminates the "screen shake" from fighting scroll momentum! */
+            scrollTimeout = setTimeout(() => {
+                if (isGalleryOutOfView && galleryVisibleCount > GALLERY_PAGE_SIZE) {
                     const oldHeight = gallerySection.getBoundingClientRect().height;
                     const rect = gallerySection.getBoundingClientRect();
                     
@@ -851,16 +829,14 @@
                     renderGallery(false);
                     
                     /* If gallery is above viewport, collapsing it pulls the page up.
-                       We must compensate the scroll position so the user's view doesn't jump. */
+                       We compensate the scroll position so the user's view doesn't jump. */
                     if (rect.bottom <= 0) {
                         const newHeight = gallerySection.getBoundingClientRect().height;
                         window.scrollBy(0, -(oldHeight - newHeight));
                     }
                 }
-            });
-        }, { threshold: 0 });
-
-        observer.observe(gallerySection);
+            }, 300);
+        }, { passive: true });
     }
 
     /* -------------------------------------------------------------------

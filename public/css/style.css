@@ -978,23 +978,31 @@ ul {
 }
 
 /* "All loaded" text */
-.gallery-all-loaded {
+.gallery-all-loaded-msg {
+    display: none;
     font-size: 0.75rem;
     color: var(--color-text-muted);
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    display: flex;
     align-items: center;
     gap: 1rem;
     opacity: 0;
     animation: lm-wrap-in 0.6s ease forwards;
 }
-.gallery-all-loaded::before,
-.gallery-all-loaded::after {
+.gallery-all-loaded-msg::before,
+.gallery-all-loaded-msg::after {
     content: '';
     width: 30px;
     height: 1px;
     background: var(--color-border);
+}
+
+/* All Loaded State Toggling */
+.gallery-load-more-wrap.all-loaded .gallery-load-more-btn {
+    display: none;
+}
+.gallery-load-more-wrap.all-loaded .gallery-all-loaded-msg {
+    display: flex;
 }
 
 /* Responsive */
