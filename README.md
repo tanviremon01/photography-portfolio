@@ -70,20 +70,22 @@ my web/
 
 ### Portfolio Sections (all data-driven from `portfolio_data.json`)
 - **Hero** — animated title, tagline, CTA button, scroll indicator
-- **Highlights** — curated 3-column photo grid with pullquotes, staggered entrance
-- **Gallery** — responsive photo grid with category filter bar and lightbox viewer
+- **Highlights** — curated 3-column photo grid with pullquotes, staggered entrance (Critical images fetch-prioritized for mobile speed)
+- **Gallery** — responsive photo grid with category filter bar, **"Load More" pagination**, and lightbox viewer
 - **Services** — service cards with feature lists, icons, hover effects
 - **Projects** — Brand / Event / Corporate folder cards, click-to-lightbox
 - **Worked With** — infinite CSS marquee of client names
 - **Testimonials** — auto-rotating carousel with dot indicators
 - **About** — photographer bio, circular photo, animated count-up stats
-- **Awards & Certificates** — glassmorphism cards with shimmer hover
+- **Honors / Recognition** — glassmorphism cards with shimmer hover, featuring **multi-photo thumbnail previews** that open a dedicated lightbox gallery
 - **Contact** — email link + social icons (LinkedIn, Instagram, Facebook)
 - **Footer** — dynamic year
 
 ### Core Features
 - **Lightbox** — full-screen viewer with prev/next, keyboard (←→ Esc), and touch swipe
 - **Category filters** — animated fade-out/in when switching categories
+- **"Load More" Pagination** — gracefully loads additional gallery photos without destroying the DOM, ensuring scroll position stability
+- **Mobile Performance Optimizations** — preloaded JSON data to break the JS-fetch waterfall, `fetchpriority="high"` for critical above-the-fold assets, and `decoding="async"` for all images.
 - **Skeleton loading** — shimmer placeholder cards while API loads
 - **Scroll progress bar** — thin gold bar at the top of the page
 - **Scroll-triggered animations** — IntersectionObserver reveals on viewport enter
@@ -92,8 +94,9 @@ my web/
 - **Smooth scroll** — anchor link navigation with fixed-header offset (`scroll-padding-top`)
 
 ### Admin Panel (`/admin.html`)
-- Password-protected dashboard
-- Upload photos (drag-and-drop or file picker)
+- Password-protected dashboard (with dynamic Vercel / GitHub commit integration)
+- Upload photos (drag-and-drop or file picker with client-side compression)
+- **Photo Staging System** — select multiple files sequentially and preview them before committing the upload
 - CRUD for: photos, highlights, awards, services, portfolios, clients, testimonials
 - Multi-category checkbox selection per photo
 - Live portfolio data editing without touching any files
@@ -138,17 +141,13 @@ my web/
 - **Add `Cache-Control` headers** in the C router for static assets (images, CSS, JS) — currently there are none, so browsers re-fetch everything on every visit
 - **Serve only WebP** — `compress_images.py` can be updated to output WebP exclusively since all modern browsers support it
 - **gzip the `/api/portfolio` response** — for a large `portfolio_data.json`, uncompressed JSON adds unnecessary bytes
-- **Add `decoding="async"`** to `<img>` tags alongside existing `loading="lazy"` for non-blocking image decode
 
 ### 🟢 UX / Design
-- **"Load More" or infinite scroll** for the gallery — as photos grow past 50+, the initial render will stall
 - **Contact form** — the contact section only has an email link; a form wired to `email_config.json` + the existing SMTP setup would complete the UX loop
 - **Dark/Light mode toggle** — the design system already uses CSS custom properties; a toggle needs only ~20 lines of JS + a `[data-theme="light"]` override block
 - **Preload the hero image** with `<link rel="preload">` if a background photo is ever added — critical for LCP score
 
 ### 🔵 Code Quality
-- **Error boundaries in `app.js`** — if any `render*` function throws on a malformed JSON field, the rest of the page silently breaks; wrap each call in try/catch
-- **Move `portfolio_data.json` out of `src/`** — source directory should not hold runtime data; use a `data/` folder
 - **Validate `portfolio_data.json` schema** — a missing or wrong-type field can crash rendering silently; a JSON schema check on server start would catch this early
 
 ---
