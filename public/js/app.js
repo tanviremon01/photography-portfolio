@@ -250,10 +250,15 @@
                 ? photo.category.join(' / ')
                 : photo.category;
 
+            let imgAttrs = 'loading="lazy" decoding="async"';
+            if (i < 2) {
+                imgAttrs = 'fetchpriority="high" decoding="async"';
+            }
+
             card.innerHTML = `
                 <img src="${escapeHtml(photo.url)}"
                      alt="${escapeHtml(photo.title)}"
-                     loading="lazy" decoding="async" draggable="false">
+                     ${imgAttrs} draggable="false">
                 <div class="highlight-overlay">
                     <span class="highlight-category">${escapeHtml(categoryText)}</span>
                     <h4 class="highlight-title">${escapeHtml(photo.title)}</h4>
