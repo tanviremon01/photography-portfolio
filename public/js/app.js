@@ -99,6 +99,7 @@
         setupHeader();
         setupMobileMenu();
         setupSmoothScroll();
+        setupGalleryReset();
         updateFooterYear();
         fetchPortfolio();
     }
@@ -773,6 +774,51 @@
         if (DOM.navBackdrop) {
             DOM.navBackdrop.addEventListener('click', closeMenu);
         }
+    }
+
+    /* -------------------------------------------------------------------
+     * GALLERY RESET — Reset to first 6 photos when the gallery section
+     * leaves the viewport and the user navigates back to it.
+     * ------------------------------------------------------------------- */
+    function setupGalleryReset() {
+        const gallerySection = document.getElementById('gallery');
+        if (!gallerySection) return;
+
+        let wasExpanded = false;  /* true when user has loaded extra pages */
+        let isVisible = true;     /* whether gallery is currently in viewport */
+
+        /* Watch for the gallery section leaving / re-entering the viewport */
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting && isVisible) {
+                    /* Gallery just left the viewport */
+                    isVisible = false;
+                    wasExpanded = galleryVisibleCount > GALLERY_PAGE_SIZE;
+                } else if (entry.isIntersecting && !isVisible) {
+                    /* Gallery came back into view */
+                    isVisible = true;
+                    if (wasExpanded && portfolioData) {
+                        wasExpanded = false;
+                        galleryVisibleCount = GALLERY_PAGE_SIZE;
+                        renderGallery(false); /* instant, no fade */
+                    }
+                }
+            });
+        }, {
+            /* Trigger as soon as the section is < 10% visible */
+            threshold: 0.1
+        });
+
+        observer.observe(gallerySection);
+
+        /* Also reset when any non-gallery nav link is clicked */
+        document.querySelectorAll('a[href^="#"]').forEach((link) => {
+            if (link.getAttribute('href') !== '#gallery') {
+                link.addEventListener('click', () => {
+                    wasExpanded = galleryVisibleCount > GALLERY_PAGE_SIZE;
+                });
+            }
+        });
     }
 
     /* -------------------------------------------------------------------
