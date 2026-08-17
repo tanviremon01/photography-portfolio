@@ -22,14 +22,26 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
     <!-- Preload Critical Data -->
-    <link rel="preload" href="/api/portfolio" as="fetch" crossorigin="anonymous">
+    <link rel="preload" href="/api/portfolio" as="fetch">
 
     <!-- Google Fonts: Inter + Playfair Display -->
+    <!-- preconnect hints speed up font negotiation on mobile networks -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <!-- display=swap ensures text is ALWAYS visible even when fonts haven't loaded yet.
+         Without this, the page appears blank on slow/filtered mobile networks (FOIT). -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
-        rel="stylesheet">
+        rel="stylesheet"
+        media="print"
+        onload="this.media='all'">
+    <!-- Noscript fallback for browsers with JS disabled -->
+    <noscript>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+            rel="stylesheet">
+    </noscript>
 
     <link rel="stylesheet" href="/css/style.css">
 </head>
