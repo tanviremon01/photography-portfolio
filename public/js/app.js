@@ -110,13 +110,23 @@
     async function fetchPortfolio() {
         // Show skeleton loading cards while fetching
         showGallerySkeleton();
+
+        /* AbortController gives us a hard timeout — critical on mobile data.
+           Without this, a slow/unstable connection hangs the fetch indefinitely,
+           leaving the page stuck on the skeleton loader forever. */
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); /* 15 s */
+
         try {
-            const response = await fetch(API_URL);
+            const response = await fetch(API_URL, { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             portfolioData = await response.json();
         } catch (err) {
+            clearTimeout(timeoutId);
+            const isTimeout = err.name === 'AbortError';
             console.error('[Portfolio] Failed to fetch data:', err);
-            showError();
+            showError(isTimeout);
             return;
         }
 
@@ -1021,11 +1031,24 @@
     /* -------------------------------------------------------------------
      * ERROR STATE — Show when API fetch fails.
      * ------------------------------------------------------------------- */
-    function showError() {
+    function showError(isTimeout = false) {
         if (DOM.galleryLoad) {
+            const msg = isTimeout
+                ? '⏱ Connection timed out. Please check your network and try again.'
+                : '⚠ Could not load portfolio data. Please try again.';
             DOM.galleryLoad.innerHTML =
-                '<p style="color: var(--color-accent);">⚠ Could not load portfolio data.</p>' +
-                '<p style="font-size: 0.85rem;">Make sure the C server is running on port 8080.</p>';
+                `<p style="color: var(--color-accent); font-size: 1rem; margin-bottom: 0.75rem;">${msg}</p>` +
+                `<button onclick="location.reload()" style="
+                    background: var(--color-accent);
+                    color: #000;
+                    border: none;
+                    padding: 0.6rem 1.4rem;
+                    border-radius: 6px;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    letter-spacing: 0.05em;
+                ">Retry</button>`;
         }
     }
 

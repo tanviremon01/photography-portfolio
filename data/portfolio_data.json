@@ -1,10 +1,10 @@
-{
+﻿{
     "site": {
         "title": "Tanvir Ahammad Emon",
         "tagline": "Capturing moments that matter",
         "author": "Tanvir Ahammad Emon",
         "bio": "Tanvir Ahammad Emon is a dedicated photographer based in Bangladesh and the current President of DIUPS (Daffodil International University Photographic Society).\nSince starting his journey in 2018-2019, Tanvir has focused on freezing authentic moments in time. His portfolio is a blend of Travel, Street, and Documentary photography, with a keen interest in Wildlife and natural beauty. Whether capturing a fleeting moment on the street or the details of wildlife, his work reflects a deep commitment to the art form.",
-        "author_photo": "/images/TanvirEmon.jpg",
+        "author_photo": "/images/TanvirEmon.webp",
         "contact_email": "tanviremon121@gmail.com",
         "social": {
             "linkedin": "https://linkedin.com/in/tanviremon",
@@ -25,8 +25,8 @@
             "id": 1,
             "title": "Into the Mist",
             "category": "Street",
-            "url": "/images/pic1.jpg",
-            "thumbnail": "/images/pic1.jpg",
+            "url": "/images/pic1.webp",
+            "thumbnail": "/images/pic1.webp",
             "description": "A silhouetted figure carrying a bucket walks down a misty, sunlit path framed by dark, towering trees."
         },
         {
@@ -36,48 +36,48 @@
                 "Documentary",
                 "Street"
             ],
-            "url": "/images/Labour-2.jpg",
-            "thumbnail": "/images/Labour-2.jpg",
+            "url": "/images/Labour-2.webp",
+            "thumbnail": "/images/Labour-2.webp",
             "description": "A laborer balances a heavy basket of bricks on his head as he walks past the massive, brightly painted hull of a ship."
         },
         {
             "id": 3,
             "title": "A Stroke of Red",
             "category": "Street",
-            "url": "/images/Red3.jpg",
-            "thumbnail": "/images/Red3.jpg",
+            "url": "/images/Red3.webp",
+            "thumbnail": "/images/Red3.webp",
             "description": "A woman in a striking red Hijab walks along a rural railway track, contrasting beautifully with the lush green landscape."
         },
         {
             "id": 4,
             "title": "Pastoral Peace",
             "category": "Landscape",
-            "url": "/images/Landscape-4.jpg",
-            "thumbnail": "/images/Landscape-4.jpg",
+            "url": "/images/Landscape-4.webp",
+            "thumbnail": "/images/Landscape-4.webp",
             "description": "Cows graze peacefully in a vibrant green pasture bordered by dense trees and rolling mountains."
         },
         {
             "id": 5,
             "title": "Golden Reflection",
             "category": "Landscape",
-            "url": "/images/Alone-5.jpg",
-            "thumbnail": "/images/Alone-5.jpg",
+            "url": "/images/Alone-5.webp",
+            "thumbnail": "/images/Alone-5.webp",
             "description": "A lone horse wades through calm, shallow floodwaters, its reflection mirrored perfectly on the surface under a golden sunset."
         },
         {
             "id": 6,
             "title": "Peaceful Coexistence",
             "category": "Street",
-            "url": "/images/Juxtaposition-6.jpg",
-            "thumbnail": "/images/Juxtaposition-6.jpg",
+            "url": "/images/Juxtaposition-6.webp",
+            "thumbnail": "/images/Juxtaposition-6.webp",
             "description": "An elderly man in traditional Islamic attire walks past a bright blue roadside cabinet housing Hindu deities."
         },
         {
             "id": 7,
             "title": "The Morning Load",
             "category": "Landscape",
-            "url": "/images/winter7.jpg",
-            "thumbnail": "/images/winter7.jpg",
+            "url": "/images/winter7.webp",
+            "thumbnail": "/images/winter7.webp",
             "description": "Two figures carry a heavy load on a bamboo pole through a foggy field beneath a solitary tree at sunrise."
         },
         {
@@ -87,8 +87,8 @@
                 "Portrait",
                 "Street"
             ],
-            "url": "/images/lady8.jpg",
-            "thumbnail": "/images/lady8.jpg",
+            "url": "/images/lady8.webp",
+            "thumbnail": "/images/lady8.webp",
             "description": "Local vendors calmly sell fish on the edge of the railway tracks as a heavy train speeds past just inches away."
         },
         {
@@ -98,48 +98,48 @@
                 "Documentary",
                 "Portrait"
             ],
-            "url": "/images/osmanhadi9.jpg",
-            "thumbnail": "/images/osmanhadi9.jpg",
+            "url": "/images/osmanhadi9.webp",
+            "thumbnail": "/images/osmanhadi9.webp",
             "description": "A young girl looks back piercingly through a dense, somber crowd gathered at the Osman Hadi janaja, flanked by security personnel."
         },
         {
             "id": 10,
             "title": "Surge of Power",
             "category": "Documentary",
-            "url": "/images/boatrace10.jpg",
-            "thumbnail": "/images/boatrace10.jpg",
+            "url": "/images/boatrace10.webp",
+            "thumbnail": "/images/boatrace10.webp",
             "description": "TIntense action and flying water as a large crew of rowers paddles furiously during a traditional boat race."
         },
         {
             "id": 11,
             "title": "The Flying Kite",
             "category": "Street",
-            "url": "/images/The_Flying_Kite.jpg",
-            "thumbnail": "/images/The_Flying_Kite.jpg",
+            "url": "/images/The_Flying_Kite.webp",
+            "thumbnail": "/images/The_Flying_Kite.webp",
             "description": "A young boy stood atop a truck, his eyes wide with wonder as he gazed at a vibrant kite soaring high in the sky. The colorful fabric danced against the blue backdrop, tugging at the string held tightly in his small hands. With each gust of wind, the kite dipped and soared, igniting a sense of freedom and joy within him. In that moment, the world around him faded, leaving only the thrill of flight and the promise of adventure."
         },
         {
             "id": 12,
             "title": "Inside DIUPS",
             "category": "Architecture",
-            "url": "/images/20240121_165103__3_.jpg",
-            "thumbnail": "/images/20240121_165103__3_.jpg",
+            "url": "/images/20240121_165103__3_.webp",
+            "thumbnail": "/images/20240121_165103__3_.webp",
             "description": ""
         },
         {
             "id": 13,
             "title": "A dress of soil",
             "category": "Documentary",
-            "url": "/images/TAEprocessed-04837.jpg",
-            "thumbnail": "/images/TAEprocessed-04837.jpg",
+            "url": "/images/TAEprocessed-04837.webp",
+            "thumbnail": "/images/TAEprocessed-04837.webp",
             "description": ""
         },
         {
             "id": 14,
             "title": "Tale of an Old Man",
             "category": "Documentary",
-            "url": "/images/TAEprocessed-01257.JPG",
-            "thumbnail": "/images/TAEprocessed-01257.JPG",
+            "url": "/images/TAEprocessed-01257.webp",
+            "thumbnail": "/images/TAEprocessed-01257.webp",
             "description": "Bound by a shared silence and a life lived close to the earth. In the company of his goats, an old man's narrative quietly unfolds, a story of patience, partnership, and the simple beauty of existence. 'Tale of an Old Man' offers a rare glimpse into a vanishing world."
         },
         {
@@ -149,8 +149,8 @@
                 "Street",
                 "Documentary"
             ],
-            "url": "/images/TAEprocessed-01340.jpg",
-            "thumbnail": "/images/TAEprocessed-01340.jpg",
+            "url": "/images/TAEprocessed-01340.webp",
+            "thumbnail": "/images/TAEprocessed-01340.webp",
             "description": "Dwarfed by the colossal, rust-red hull of a massive vessel, shipyard laborers carve out a fleeting moment of rest on heavy anchor chains, finding a quiet sanctuary in an unforgiving industrial landscape."
         },
         {
@@ -160,8 +160,8 @@
                 "Street",
                 "Documentary"
             ],
-            "url": "/images/1000068432.jpg",
-            "thumbnail": "/images/1000068432.jpg",
+            "url": "/images/1000068432.webp",
+            "thumbnail": "/images/1000068432.webp",
             "description": ""
         },
         {
@@ -170,8 +170,8 @@
             "category": [
                 "Landscape"
             ],
-            "url": "/images/TAEprocessed-06807.JPG",
-            "thumbnail": "/images/TAEprocessed-06807.JPG",
+            "url": "/images/TAEprocessed-06807.webp",
+            "thumbnail": "/images/TAEprocessed-06807.webp",
             "description": ""
         }
     ],
@@ -186,15 +186,15 @@
         },
         {
             "photo_id": 1,
-            "pullquote": "Every street has a story — you just have to look."
+            "pullquote": "Every street has a story â€” you just have to look."
         },
         {
             "photo_id": 3,
-            "pullquote": "A stroke of red against the green — nature meets culture."
+            "pullquote": "A stroke of red against the green â€” nature meets culture."
         },
         {
             "photo_id": 10,
-            "pullquote": "The surge of tradition — power, rhythm, and water."
+            "pullquote": "The surge of tradition â€” power, rhythm, and water."
         },
         {
             "photo_id": 11,
@@ -204,116 +204,116 @@
     "portfolios": [
         {
             "type": "Brand",
-            "icon": "💼",
+            "icon": "ðŸ’¼",
             "description": "Commercial and Brand Photography",
             "photos": [
                 {
                     "title": "Brand Campaign",
-                    "url": "/images/srf/srf1.JPG",
+                    "url": "/images/srf/srf1.webp",
                     "description": "Product shoot for SRF Sports DIU"
                 },
                 {
                     "title": "Brand Campaign",
-                    "url": "/images/srf/srf2.JPG",
+                    "url": "/images/srf/srf2.webp",
                     "description": "Product shoot for SRF Sports DIU"
                 },
                 {
                     "title": "Brand Campaign",
-                    "url": "/images/srf/srf3.JPG",
+                    "url": "/images/srf/srf3.webp",
                     "description": "Product shoot for SRF Sports DIU"
                 },
                 {
                     "title": "VIVO Y31d Launch",
-                    "url": "/images/vivo/vivo1.JPG",
+                    "url": "/images/vivo/vivo1.webp",
                     "description": ""
                 },
                 {
                     "title": "VIVO Y31d Launch",
-                    "url": "/images/vivo/vivo2.JPG",
+                    "url": "/images/vivo/vivo2.webp",
                     "description": ""
                 }
             ]
         },
         {
             "type": "Event",
-            "icon": "🎪",
+            "icon": "ðŸŽª",
             "description": "Event Coverage",
             "photos": [
                 {
                     "title": "Boishakh Parbone 1433",
-                    "url": "/images/diu1433/1.JPG",
+                    "url": "/images/diu1433/1.webp",
                     "description": "Cultural Program by DIU"
                 },
                 {
                     "title": "Boishakh Parbone 1433",
-                    "url": "/images/diu1433/2.JPG",
+                    "url": "/images/diu1433/2.webp",
                     "description": "Cultural Program by DIU"
                 },
                 {
                     "title": "Boishakh Parbone 1433",
-                    "url": "/images/diu1433/3.JPG",
+                    "url": "/images/diu1433/3.webp",
                     "description": "Cultural Program by DIU"
                 },
                 {
                     "title": "Boishakh Parbone 1433",
-                    "url": "/images/diu1433/4.JPG",
+                    "url": "/images/diu1433/4.webp",
                     "description": "Cultural Program by DIU"
                 }
             ]
         },
         {
             "type": "Corporate",
-            "icon": "🏢",
+            "icon": "ðŸ¢",
             "description": "Corporate Events & Headshots",
             "photos": [
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa1.JPG",
+                    "url": "/images/actionaid/aa1.webp",
                     "description": "9th Urban Dialouge 2026"
                 },
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa2.JPG",
+                    "url": "/images/actionaid/aa2.webp",
                     "description": "9th Urban Dialouge 2026"
                 },
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa3.JPG",
+                    "url": "/images/actionaid/aa3.webp",
                     "description": "9th Urban Dialouge 2026"
                 },
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa4.JPG",
+                    "url": "/images/actionaid/aa4.webp",
                     "description": "9th Urban Dialouge 2026"
                 },
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa5.JPG",
+                    "url": "/images/actionaid/aa5.webp",
                     "description": "9th Urban Dialouge 2026"
                 },
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa6.JPG",
+                    "url": "/images/actionaid/aa6.webp",
                     "description": "9th Urban Dialouge 2026"
                 },
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa7.JPG",
+                    "url": "/images/actionaid/aa7.webp",
                     "description": "9th Urban Dialouge 2026"
                 },
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa8.JPG",
+                    "url": "/images/actionaid/aa8.webp",
                     "description": "9th Urban Dialouge 2026"
                 },
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa9.JPG",
+                    "url": "/images/actionaid/aa9.webp",
                     "description": "9th Urban Dialouge 2026"
                 },
                 {
                     "title": "Corporate Event",
-                    "url": "/images/actionaid/aa10.JPG",
+                    "url": "/images/actionaid/aa10.webp",
                     "description": "9th Urban Dialouge 2026"
                 }
             ]
@@ -332,8 +332,8 @@
             "year": 2020,
             "description": "Awarded Best Photographer of the Year by Young Photographer Panel Bangladesh.",
             "photos": [
-                "/images/awards/IMG_20211216_181226.jpg",
-                "/images/awards/20211216180852_IMG_1817.JPG"
+                "/images/awards/IMG_20211216_181226.webp",
+                "/images/awards/20211216180852_IMG_1817.webp"
             ]
         }
     ],
@@ -341,7 +341,7 @@
         {
             "title": "Event Coverage",
             "description": "Comprehensive coverage of corporate events, conferences, cultural festivals, and community gatherings with a documentary approach.",
-            "icon": "📸",
+            "icon": "ðŸ“¸",
             "features": [
                 "Full-day coverage",
                 "Edited high-res deliverables",
@@ -351,8 +351,8 @@
         },
         {
             "title": "Portrait Sessions",
-            "description": "Professional portrait sessions for individuals, couples, and families — both in-studio and on-location with natural light.",
-            "icon": "🖼️",
+            "description": "Professional portrait sessions for individuals, couples, and families â€” both in-studio and on-location with natural light.",
+            "icon": "ðŸ–¼ï¸",
             "features": [
                 "1-2 hour session",
                 "Multiple outfit changes",
@@ -361,8 +361,8 @@
         },
         {
             "title": "Commercial & Brand",
-            "description": "Visual content creation for brands, businesses, and publications — product photography, team portraits, and brand storytelling.",
-            "icon": "💼",
+            "description": "Visual content creation for brands, businesses, and publications â€” product photography, team portraits, and brand storytelling.",
+            "icon": "ðŸ’¼",
             "features": [
                 "Brand consultation",
                 "Styled shoots",
@@ -372,8 +372,8 @@
         },
         {
             "title": "Documentary Projects",
-            "description": "Long-form visual storytelling for NGOs, editorial publications, and personal projects — capturing authentic narratives.",
-            "icon": "🎞️",
+            "description": "Long-form visual storytelling for NGOs, editorial publications, and personal projects â€” capturing authentic narratives.",
+            "icon": "ðŸŽžï¸",
             "features": [
                 "Multi-day shoots",
                 "Story-driven approach",
